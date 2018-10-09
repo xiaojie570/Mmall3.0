@@ -192,4 +192,13 @@ public class UserServiceImpl implements IUserService {
         user.setPassword(StringUtils.EMPTY);
         return ServerResponse.createBySuccess(user);
     }
+
+    // backend
+    // 校验是否是管理员
+    public ServerResponse checkAdminRole(User user) {
+        if(user != null && user.getRole().equals(Const.Role.ROLE_ADMIN)) {
+            return ServerResponse.createBySuccess();
+        }
+        return ServerResponse.createByError();
+    }
 }
