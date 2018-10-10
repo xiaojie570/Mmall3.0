@@ -22,13 +22,13 @@ public class Const {
         int ROLE_ADMIN = 1; // 管理员
     }
 
-    public  enum ProductStatusEnum {
-        ON_SLAE(1,"在线");
+    public enum ProductStatusEnum {
+        ON_SALE(1,"在线");
 
-        protected String value;
+        private String value;
         private int code;
 
-        ProductStatusEnum(String value, int code) {
+        ProductStatusEnum(int code, String value) {
             this.value = value;
             this.code = code;
         }
@@ -37,17 +37,11 @@ public class Const {
             return value;
         }
 
-        public void setValue(String value) {
-            this.value = value;
-        }
-
         public int getCode() {
             return code;
         }
 
-        public void setCode(int code) {
-            this.code = code;
-        }
+
     }
 
 }

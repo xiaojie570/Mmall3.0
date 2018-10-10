@@ -156,6 +156,7 @@ public class ProcuctServiceImpl implements IProcuctService {
     public ServerResponse<PageInfo> searchProduct(String productName,Integer productId,int pageNum,int pageSize) {
         PageHelper.startPage(pageNum,pageSize);
         if(StringUtils.isNotBlank(productName)) {
+            System.out.println(productName+"...........................");
             productName = new StringBuilder().append("%").append(productName).append("%").toString();
 
         }
@@ -181,7 +182,7 @@ public class ProcuctServiceImpl implements IProcuctService {
         if(product == null) {
             return ServerResponse.createByErrorMessage("产品已经下架或者删除");
         }
-        if(product.getStatus() != Const.ProductStatusEnum.ON_SLAE.getCode())
+        if(product.getStatus() != Const.ProductStatusEnum.ON_SALE.getCode())
             return ServerResponse.createByErrorMessage("产品已经下架或者删除");
 
         ProductDetailVo productDetailVo =aaembleProductDetailVo(product);
@@ -198,14 +199,15 @@ public class ProcuctServiceImpl implements IProcuctService {
 
         if(categoryId != null ) {
             Category category = categoryMapper.selectByPrimaryKey(categoryId);
-            if(categoryId == null && StringUtils.isBlank(keyword)) {
+            if (categoryId == null && StringUtils.isBlank(keyword)) {
                 //没有该分类，并且还没有关键字，这个时候返回一个空的结果集，不报错
-                PageHelper.startPage(pageNum,pageSize);
+                PageHelper.startPage(pageNum, pageSize);
                 List<ProductDetailVo> productDetailVoList = Lists.newArrayList();
                 PageInfo pageInfo = new PageInfo(productDetailVoList);
                 return ServerResponse.createBySuccess(pageInfo);
             }
             categoryIdList = iCategoryService.selectCategoryAndChildrenById(category.getId()).getData();
+        }
             if(StringUtils.isNotBlank(keyword)) {
                 keyword = new StringBuilder().append("%").append(keyword).append("%").toString();
             }
@@ -226,7 +228,7 @@ public class ProcuctServiceImpl implements IProcuctService {
             PageInfo pageInfo = new PageInfo(productList);
             pageInfo.setList(productListVoList);
             return ServerResponse.createBySuccess(pageInfo);
-        }
-        return ServerResponse.createByError();
     }
+
+
 }

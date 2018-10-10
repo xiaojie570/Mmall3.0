@@ -26,11 +26,13 @@ public class ProduceController {
         return iProcuctService.getProductDetail(productId);
     }
 
-    public ServerResponse<PageInfo> list(@RequestParam(value="keyword",required = false)String keywprd,
+    @RequestMapping("list.do")
+    @ResponseBody
+    public ServerResponse<PageInfo> list(@RequestParam(value="keyword",required = false)String keyword,
                                          @RequestParam(value = "categoryId",required = false) Integer categoryId,
                                          @RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
                                          @RequestParam(value = "pageSize",defaultValue = "10") int pageSize,
                                          @RequestParam(value = "orderBy",defaultValue = "") String orderBy) {
-        return iProcuctService.getProductByKeyworldCategory(keywprd,categoryId,pageNum,pageSize,orderBy);
+        return iProcuctService.getProductByKeyworldCategory(keyword,categoryId,pageNum,pageSize,orderBy);
     }
 }
