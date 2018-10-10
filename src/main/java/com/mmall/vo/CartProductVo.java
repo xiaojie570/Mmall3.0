@@ -7,31 +7,28 @@ import java.math.BigDecimal;
  */
 public class CartProductVo {
     private Integer id;
-
     private Integer userId;
-
     private Integer productId;
-
-    private Integer quantity;// 购物车中此商品的数量
-
+    private Integer quantity;//购物车中此商品的数量
     private String productName;
-
-    private String subtitle;
-
-    private String mainImage;
-
+    private String productSubtitle;
+    private String productMainImage;
     private BigDecimal productPrice;
-
     private Integer productStatus;
-
     private BigDecimal productTotalPrice;
-
     private Integer productStock;
-
     private Integer productChecked;//此商品是否勾选
 
-    private String limitQuantity; //限制数量的一个返回结果
 
+    private String limitQuantity;//限制数量的一个返回结果
+
+    public String getLimitQuantity() {
+        return limitQuantity;
+    }
+
+    public void setLimitQuantity(String limitQuantity) {
+        this.limitQuantity = limitQuantity;
+    }
 
     public Integer getId() {
         return id;
@@ -73,20 +70,20 @@ public class CartProductVo {
         this.productName = productName;
     }
 
-    public String getSubtitle() {
-        return subtitle;
+    public String getProductSubtitle() {
+        return productSubtitle;
     }
 
-    public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
+    public void setProductSubtitle(String productSubtitle) {
+        this.productSubtitle = productSubtitle;
     }
 
-    public String getMainImage() {
-        return mainImage;
+    public String getProductMainImage() {
+        return productMainImage;
     }
 
-    public void setMainImage(String mainImage) {
-        this.mainImage = mainImage;
+    public void setProductMainImage(String productMainImage) {
+        this.productMainImage = productMainImage;
     }
 
     public BigDecimal getProductPrice() {
@@ -127,13 +124,5 @@ public class CartProductVo {
 
     public void setProductChecked(Integer productChecked) {
         this.productChecked = productChecked;
-    }
-
-    public String getLimitQuantity() {
-        return limitQuantity;
-    }
-
-    public void setLimitQuantity(String limitQuantity) {
-        this.limitQuantity = limitQuantity;
     }
 }

@@ -7,17 +7,17 @@ import java.util.List;
  * Created by lenovo on 2018/10/10.
  */
 public class CartVo {
-    private List<CartProductVo> cartProductVos;
+    private List<CartProductVo> cartProductVoList;
     private BigDecimal cartTotalPrice;
     private Boolean allChecked;
     private String imageHost;
 
-    public List<CartProductVo> getCartProductVos() {
-        return cartProductVos;
+    public List<CartProductVo> getCartProductVoList() {
+        return cartProductVoList;
     }
 
-    public void setCartProductVos(List<CartProductVo> cartProductVos) {
-        this.cartProductVos = cartProductVos;
+    public void setCartProductVoList(List<CartProductVo> cartProductVoList) {
+        this.cartProductVoList = cartProductVoList;
     }
 
     public BigDecimal getCartTotalPrice() {
