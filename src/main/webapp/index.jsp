@@ -9,6 +9,10 @@ springmvc上传文件
     <input type="submit" value="springmvc上传文件">
 </form>
 
+<%--<form name="form1" action="/Mmall/test.do" method="post" enctype="multipart/form-data">
+
+</form>--%>
+
 富文本图片上传文件
 <form name="form2" action="/Mmall/manage/product/richtext_img_upload.do" method="post" enctype="multipart/form-data">
     <input type="file" name="upload_file" />
