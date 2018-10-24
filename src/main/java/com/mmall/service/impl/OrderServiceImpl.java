@@ -54,9 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-/**
- * Created by geely
- */
+
 @Service("iOrderService")
 public class OrderServiceImpl implements IOrderService {
 
@@ -84,21 +82,28 @@ public class OrderServiceImpl implements IOrderService {
     @Autowired
     private OrderItemMapper orderItemMapper;
 
+    /**
+     *
+     * @param orderNo 订单号
+     * @param userId 用户的id
+     * @param path 生成二维码传到哪里的路径
+     * @return
+     */
     public ServerResponse pay(Long orderNo,Integer userId,String path){
-        System.out.println("1111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+        // 使用map来承载这个对象
         Map<String ,String> resultMap = Maps.newHashMap();
 
+        // 判断这个用户是否you该订单
         Order order = orderMapper.selectByUserIdAndOrderNo(userId,orderNo);
         if(order == null){
             return ServerResponse.createByErrorMessage("用户没有该订单");
         }
-        System.out.println("222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222");
         resultMap.put("orderNo",String.valueOf(order.getOrderNo()));
-
 
 
         // (必填) 商户网站订单系统中唯一订单号，64个字符以内，只能包含字母、数字、下划线，
         // 需保证商户系统端不能重复，建议通过数据库sequence生成，
+        // 订单号
         String outTradeNo = order.getOrderNo().toString();
 
 
@@ -119,6 +124,7 @@ public class OrderServiceImpl implements IOrderService {
 
         // 卖家支付宝账号ID，用于支持一个签约账号下支持打款到不同的收款账号，(打款到sellerId对应的支付宝账号)
         // 如果该字段为空，则默认为与支付宝签约的商户的PID，也就是appid对应的PID
+        // 这里就使用一个默认的就可以了
         String sellerId = "";
 
         // 订单描述，可以对交易或商品进行一个详细地描述，比如填写"购买商品2件共15.00元"
@@ -126,12 +132,15 @@ public class OrderServiceImpl implements IOrderService {
 
 
         // 商户操作员编号，添加此参数可以为商户操作员做销售统计
+        // 使用默认
         String operatorId = "test_operator_id";
 
         // (必填) 商户门店编号，通过门店号和商家后台可以配置精准到门店的折扣信息，详询支付宝技术支持
+        // 使用默认，如果连锁店就会用到这个门店编号
         String storeId = "test_store_id";
 
         // 业务扩展参数，目前可添加由支付宝分配的系统商编号(通过setSysServiceProviderId方法)，详情请咨询支付宝技术支持
+        // 不变
         ExtendParams extendParams = new ExtendParams();
         extendParams.setSysServiceProviderId("2088100200300400500");
 
@@ -139,13 +148,16 @@ public class OrderServiceImpl implements IOrderService {
 
 
         // 支付超时，定义为120分钟
+        // 不变
         String timeoutExpress = "120m";
 
         // 商品明细列表，需填写购买商品详细信息，
         List<GoodsDetail> goodsDetailList = new ArrayList<GoodsDetail>();
-
+        // 获取订单下面的item，即订单下面的明细。要根据订单号和用户id获取订单item
         List<OrderItem> orderItemList = orderItemMapper.getByOrderNoUserId(orderNo,userId);
+
         for(OrderItem orderItem : orderItemList){
+
             GoodsDetail goods = GoodsDetail.newInstance(orderItem.getProductId().toString(), orderItem.getProductName(),
                     BigDecimalUtil.mul(orderItem.getCurrentUnitPrice().doubleValue(),new Double(100).doubleValue()).longValue(),
                     orderItem.getQuantity());
@@ -158,7 +170,7 @@ public class OrderServiceImpl implements IOrderService {
                 .setUndiscountableAmount(undiscountableAmount).setSellerId(sellerId).setBody(body)
                 .setOperatorId(operatorId).setStoreId(storeId).setExtendParams(extendParams)
                 .setTimeoutExpress(timeoutExpress)
-                .setNotifyUrl(PropertiesUtil.getProperty("alipay.callback.url"))//支付宝服务器主动通知商户服务器里指定的页面http路径,根据需要设置
+                .setNotifyUrl(PropertiesUtil.getProperty("alipay.callback.url"))//支付宝服务器主动通知商户服务器里指定的页面http路径,根据需要设置、这里面写的是支付宝中写的回调地址
                 .setGoodsDetailList(goodsDetailList);
 
 
@@ -170,6 +182,7 @@ public class OrderServiceImpl implements IOrderService {
                 AlipayTradePrecreateResponse response = result.getResponse();
                 dumpResponse(response);
 
+                //　判断目录是否存在，如果不存在需要将该路径创建出来
                 File folder = new File(path);
                 if(!folder.exists()){
                     folder.setWritable(true);
@@ -177,9 +190,11 @@ public class OrderServiceImpl implements IOrderService {
                 }
 
                 // 需要修改为运行机器上的路径
-                //细节细节细节
+                // 细节细节细节，生成二维码，传到服务器上
                 String qrPath = String.format(path+"/qr-%s.png",response.getOutTradeNo());
+                // 生成一个文件。订单号会替换%s
                 String qrFileName = String.format("qr-%s.png",response.getOutTradeNo());
+                // 将二维码存储在哪里，这里存储在qrPath中
                 ZxingUtils.getQRCodeImge(response.getQrCode(), 256, qrPath);
 
                 File targetFile = new File(path,qrFileName);

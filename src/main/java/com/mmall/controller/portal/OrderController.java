@@ -33,16 +33,25 @@ public class OrderController {
     private IOrderService iOrderService;
 
 
+    /**
+     * 支付订单
+     * @param session
+     * @param orderNo　订单号
+     * @param request
+     * @return
+     */
     @RequestMapping(value = "pay.do",method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse pay(HttpSession session, Long orderNo, HttpServletRequest request){
-        System.out.println( "===========================================================================================================================================");
+        // 验证用户登录
         User user = (User)session.getAttribute(Const.CURRENT_USER);
         if(user ==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
 
-        String path = "";//request.getSession().getServletContext().getRealPath("upload");
+        //　将生成的二维码传到ｆｔｐ服务器上，然后返回给前端这个二维码的图片地址
+        String path = request.getSession().getServletContext().getRealPath("upload");
+
         return iOrderService.pay(orderNo,user.getId(),path);
     }
 
