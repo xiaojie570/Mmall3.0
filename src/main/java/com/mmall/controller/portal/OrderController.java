@@ -33,6 +33,54 @@ public class OrderController {
     private IOrderService iOrderService;
 
 
+
+    @RequestMapping("create.do")
+    @ResponseBody
+    public ServerResponse<Boolean> create(HttpSession session, Integer shippingId){
+        User user = (User)session.getAttribute(Const.CURRENT_USER);
+        if(user == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+
+        return iOrderService.createOrder(user.getId(),shippingId);
+    }
+
+    // 在未付款的时候取消订单
+
+    @RequestMapping("cancle.do")
+    @ResponseBody
+    public ServerResponse<String> cancle(HttpSession session, Long orderNo){
+        User user = (User)session.getAttribute(Const.CURRENT_USER);
+        if(user == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+
+        return iOrderService.cancleOrder(user.getId(),orderNo);
+    }
+
+    //
+    @RequestMapping("get_order_cart_product.do")
+    @ResponseBody
+    public ServerResponse<String> getOrderCartProduct(HttpSession session){
+        User user = (User)session.getAttribute(Const.CURRENT_USER);
+        if(user == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+
+        // 直接从登陆用户中获得订单号的信息
+        return iOrderService.getOrderCartProduct(user.getId());
+    }
+
+
+
+
+
+
+
+
+
+
+
     /**
      * 支付订单
      * @param session
@@ -112,6 +160,12 @@ public class OrderController {
         }
         return ServerResponse.createBySuccess(false);
     }
+
+
+
+
+
+
 
 
 

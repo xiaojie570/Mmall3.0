@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by geely
+ *
  */
 public class OrderVo {
 
@@ -16,10 +16,10 @@ public class OrderVo {
     private Integer paymentType;
 
     private String paymentTypeDesc;
+
     private Integer postage;
 
     private Integer status;
-
 
     private String statusDesc;
 
@@ -40,6 +40,7 @@ public class OrderVo {
     private Integer shippingId;
     private String receiverName;
 
+    // 收货人信息
     private ShippingVo shippingVo;
 
     public Long getOrderNo() {

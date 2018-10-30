@@ -1,7 +1,7 @@
 package com.mmall.vo;
 
 /**
- * Created by geely
+ * 收货人信息
  */
 public class ShippingVo {
     private String receiverName;

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * Created by geely
+ * 订单
  */
 public class OrderItemVo {
 
