@@ -16,6 +16,7 @@ public class ServerResponse<T> implements Serializable {
     private String msg;
     private T data;
 
+    // 写私有的构造方法
     private ServerResponse(int status) {
         this.status = status;
     }
@@ -49,18 +50,22 @@ public class ServerResponse<T> implements Serializable {
         return msg;
     }
 
+    // 只返回成功的code值
     public static<T> ServerResponse<T> createBySuccess(){
         return new ServerResponse<T>(ResponseCode.SUCCESS.getCode());
     }
 
+    //
     public static<T> ServerResponse<T> createBySuccessMsg(String msg){
         return new ServerResponse<T>(ResponseCode.SUCCESS.getCode(),msg);
     }
 
+    // 创建一个成功的返回，将成功的数据返回
     public static<T> ServerResponse<T> createBySuccess(T data){
         return new ServerResponse<T>(ResponseCode.SUCCESS.getCode(),data);
     }
 
+    // 传递消息和数据
     public static<T> ServerResponse<T> createBySuccessMsg(String msg,T data){
         return new ServerResponse<T>(ResponseCode.SUCCESS.getCode(),msg,data);
     }
