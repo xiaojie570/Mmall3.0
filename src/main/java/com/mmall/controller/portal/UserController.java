@@ -83,6 +83,7 @@ public class UserController {
         return iUserService.selectQuestion(username);
     }
 
+    // 判断忘记密码的问题是否正确
     @RequestMapping(value="forget_check_answer.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> forgetCheckAnswer(String username,String question,String answer) {
@@ -90,7 +91,7 @@ public class UserController {
     }
 
 
-    // 忘记密码及重置密码
+    // 忘记密码中的重置密码
     @RequestMapping(value="forget_reset_password.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> forgetRestPassword(String username,String passwordNew,String forgetToken) {
@@ -98,11 +99,21 @@ public class UserController {
         return iUserService.forgetRestPassword(username,passwordNew,forgetToken);
     }
 
-    // 重置密码 登录状态下，修改密码
+    // 登录状态下，重置密码
+
+    /**
+     * 因为是在登录状态，所以可以从session中获取用户信息
+     * @param session
+     * @param passwordOld
+     * @param passwordNew
+     * @return
+     */
     @RequestMapping(value="reset_password.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> resetPassword(HttpSession session, String passwordOld, String passwordNew) {
+        // 从sesssion中获取user的信息
         User user = (User)session.getAttribute(Const.CURRENT_USER);
+        // 横向越权判断
         if(user == null)
             return ServerResponse.createByErrorMessage("用户未登录");
 
@@ -110,30 +121,48 @@ public class UserController {
     }
 
     // 在登录状态下，更新个人信息
+
+    /**
+     * 1. 从session中拿到当前用户的信息
+     * 2. 将当前用户的id等信息放入到要更新个人信息的user中
+     *
+     * @param session 拿到session
+     * @param user 新的用户信息
+     * @return 返回的是User，将更新的user放到session中，并且要返回给前台
+     */
     @RequestMapping(value="update_information.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<User> update_information(HttpSession session,User user) {
         User currentUser = (User)session.getAttribute(Const.CURRENT_USER);
         if(currentUser == null)
             return ServerResponse.createByErrorMessage("用户未登录");
+        // 防止id变化，通过从session中获取
         user.setId(currentUser.getId());
         user.setAnswer(currentUser.getUsername());
+        //
         ServerResponse<User> response = iUserService.updateInformation(user);
+        // 如果更新成功，需要将新的用户信息存储到session中
         if(response.isSuccess()) {
             session.setAttribute(Const.CURRENT_USER,response.getData());
         }
         return response;
     }
 
-    // 获取个人信息
+    // 获取个人的详细信息
+
+    /**
+     * 1. 需要从session进行登录的判断，如果调用该接口，但是没有进行登录，需要进行强制的登录
+     *
+     * @param session
+     * @return
+     */
     @RequestMapping(value="get_information.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<User> get_infromation(HttpSession session) {
         User currentUser = (User)session.getAttribute(Const.CURRENT_USER);
         if(currentUser == null)
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录");
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，需要强制登录");
         return iUserService.getInformation(currentUser.getId());
-
     }
 
 }

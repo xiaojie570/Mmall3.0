@@ -15,8 +15,9 @@ public class TokenCache {
     // 声明一下这个类的日志文件
     private static Logger logger = LoggerFactory.getLogger(TokenCache.class);
 
-
+    //
     public static final String TOKEN_PREFIX = "token_";
+
     // LRU算法：当大于设置的最大缓存项的时候，就使用LRU算法来进行清除
     // 声明一个静态的内存块， 构建本地Cache . 初始化（设置缓存的初始化容量1000）.设置缓存的最大容量（10000）.设置有效期（12小时）.
     private static LoadingCache<String,String> loadCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(10000).expireAfterAccess(12, TimeUnit.HOURS)
@@ -24,6 +25,7 @@ public class TokenCache {
                 // 默认的数据加载实现，当调用get取值的时候，如果key没有对应的值，就调用这个方法进行加载
                 @Override
                 public String load(String s) throws Exception {
+                    // 因为使用null的话，进行.equals方法进行判断，会报异常，所以使用一个“null”
                     return "null";
                 }
             });

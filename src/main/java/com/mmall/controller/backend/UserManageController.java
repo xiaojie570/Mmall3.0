@@ -22,9 +22,19 @@ public class UserManageController {
     @Autowired
     private IUserService iUserService;
 
+    /**
+     * 后台管理员登录
+     * 1. 通过调用login方法来获取用户信息，如果获取用户信息成功，则将用户信息保存在User中；
+     * 2. 判断登录的用户角色是否是管理员，如果是管理员，则将用户信息放进session中。
+     * @param username
+     * @param password
+     * @param session
+     * @return
+     */
     @RequestMapping(value ="login.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<User> login(String username, String password, HttpSession session) {
+
         ServerResponse<User> response = iUserService.login(username,password);
         if(response.isSuccess()) {
             User user = response.getData();
