@@ -25,6 +25,7 @@ public class UserServiceImpl implements IUserService {
     // 登录
     @Override
     public ServerResponse<User> login(String username, String password) {
+        // 检查用户名是否存在
         int resultCount = userMapper.checkUsername(username);
         if(resultCount == 0) {
             return ServerResponse.createByErrorMessage("用户名不存在");
@@ -32,6 +33,7 @@ public class UserServiceImpl implements IUserService {
         // 密码登录MD5
         String md5password = MD5Util.MD5EncodeUtf8(password);
 
+        // 返回查到的user
         User user = userMapper.selectLogin(username,md5password);
 
         if(user == null) {
@@ -44,6 +46,7 @@ public class UserServiceImpl implements IUserService {
 
     // 注册
     public ServerResponse<String> register(User user) {
+        // 判断该用户名是否已经存在
         ServerResponse validResponse = this.checkValid(user.getUsername(),Const.USERNAME);
         if(!validResponse.isSuccess()) {
             System.out.println("有用户是这个名字");
@@ -51,6 +54,8 @@ public class UserServiceImpl implements IUserService {
         }
 
         System.out.println("没有用户是这个名字");
+        // 直接用于校验用户名一样的校验方法，多传入一个Const常量值，来告诉Dao传入的是用户名还是邮箱
+        // 校验该email是否已经存在
         validResponse = this.checkValid(user.getEmail(),Const.EMAIL);
 
         if(!validResponse.isSuccess()) {
@@ -58,17 +63,17 @@ public class UserServiceImpl implements IUserService {
         }
 
         System.out.println("没有用户是这个邮箱");
-
+        // 设置用户是普通用户
         user.setRole(Const.Role.ROLE_CUSTOMER);
         // MD5加密
         user.setPassword(MD5Util.MD5EncodeUtf8(user.getPassword()));
-
+        // 将用户插入到数据库
         int resultCount = userMapper.insert(user);
-
+        // 如果生效的行数为0， 则返回一个“注册失败”的错误信息
         if(resultCount == 0) {
             return ServerResponse.createByErrorMessage("注册失败");
         }
-        return ServerResponse.createBySuccess();
+        return ServerResponse.createBySuccessMsg("注册成功");
     }
 
     // 检查是否有效
@@ -100,6 +105,7 @@ public class UserServiceImpl implements IUserService {
             // 用户不存在
             return ServerResponse.createByErrorMessage("用户不存在");
         }
+        // 根据用户名查找用户忘记密码的问题
         String question = userMapper.selectQuestionByUserName(username);
         if(StringUtils.isNoneBlank(question)) {
             return ServerResponse.createBySuccess(question);
@@ -108,13 +114,15 @@ public class UserServiceImpl implements IUserService {
         return ServerResponse.createByErrorMessage("找回密码的问题是空的");
     }
 
-    // 使用本地缓存来检查问题答案
+    // 使用本地缓存来检查问题答案 使用guava本地缓存  mapper中对于多个参数返回值设置为map，
     public ServerResponse<String> checkAnswer(String username,String question,String answer) {
-
+        // 这个方法直接查返回值数量就可以了
         int resultCount = userMapper.checkAnswer(username,question,answer);
         if(resultCount > 0) {
             // 说明问题及问题答案是这个用户的,并且是正确的
+            // 声明一个token，这个token使用的是UUID来实现的
             String forgetToken = UUID.randomUUID().toString();
+            // 调用刚刚写的TokenCache
             TokenCache.setKey(TokenCache.TOKEN_PREFIX + username,forgetToken);
             return ServerResponse.createBySuccess(forgetToken);
         }

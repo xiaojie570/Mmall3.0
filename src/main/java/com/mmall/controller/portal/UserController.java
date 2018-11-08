@@ -34,10 +34,11 @@ public class UserController {
     @ResponseBody
     public ServerResponse<User> login(String username, String password, HttpSession session) {
         ServerResponse<User> response = iUserService.login(username,password);
-
+        // 如果返回值是正确的，则将用户信息存储在session中
         if(response.isSuccess()) {
             session.setAttribute(Const.CURRENT_USER,response.getData());
         }
+        // 将response返回
         return response;
     }
 
@@ -54,6 +55,7 @@ public class UserController {
 
         return  iUserService.register(user);
     }
+
     @RequestMapping(value="check_valid.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> checkValid(String str,String type) {

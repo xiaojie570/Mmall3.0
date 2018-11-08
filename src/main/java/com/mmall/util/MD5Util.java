@@ -29,8 +29,8 @@ public class MD5Util {
     /**
      * 返回大写MD5
      *
-     * @param origin
-     * @param charsetname
+     * @param origin 要加密的原字符串
+     * @param charsetname 加密字符集，
      * @return
      */
     private static String MD5Encode(String origin, String charsetname) {
