@@ -28,6 +28,16 @@ public class CategoryManageController {
     @Autowired
     private ICategoryService iCategoryService;
 
+    /**
+     * 增加分类结点
+     * 1. 首先需要判断用户是否登录
+     * 2. 校验登录的用户是否是管理员
+     * 3. 如果是管理员，增加我们处理分类的逻辑
+     * @param session
+     * @param categoryName 分类的名字
+     * @param parentId 父节点，需要设置默认值，如果前端没有传递parentId的时候，设置该值为0
+     * @return
+     */
     @RequestMapping("add_category.do")
     @ResponseBody
     public ServerResponse addCategory(HttpSession session, String categoryName, @RequestParam(value = "parentId", defaultValue = "0") int parentId) {
@@ -46,6 +56,15 @@ public class CategoryManageController {
         }
     }
 
+    /**
+     * 更新分类名字
+     * 1. 首先判断用户是否登录，且登录的用户是否是管理员
+     * 2. 然后调用service的更新分类名字方法
+     * @param session
+     * @param categoryId
+     * @param categoryName
+     * @return
+     */
     @RequestMapping("set_category_name.do")
     @ResponseBody
     public ServerResponse setCategoryName(HttpSession session, Integer categoryId, String categoryName) {
@@ -62,6 +81,12 @@ public class CategoryManageController {
         }
     }
 
+    /**
+     * 获取当前节点的子节点（平级商品），并且不递归
+     * @param session
+     * @param categoryId 如果没有传递该值，就默认为0
+     * @return
+     */
     @RequestMapping("get_category.do")
     @ResponseBody
     public ServerResponse getChildrenParallelCategory(HttpSession session, @RequestParam(value = "categoryId", defaultValue = "0") Integer categoryId) {
@@ -78,6 +103,13 @@ public class CategoryManageController {
         }
     }
 
+    /**
+     * 查询当前节点的id和递归子节点的id
+     *
+     * @param session
+     * @param categoryId
+     * @return
+     */
     @RequestMapping("get_deep_category.do")
     @ResponseBody
     public ServerResponse getCategoryAndDeepChildrenCategory(HttpSession session, @RequestParam(value = "categoryId", defaultValue = "0") Integer categoryId) {

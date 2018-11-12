@@ -257,7 +257,12 @@ public class UserServiceImpl implements IUserService {
     }
 
     // backend
-    // 校验是否是管理员
+
+    /**
+     *  校验是否是管理员,通过Const类的常量
+     * @param user
+     * @return
+     */
     public ServerResponse checkAdminRole(User user) {
         if(user != null && user.getRole().equals(Const.Role.ROLE_ADMIN)) {
             return ServerResponse.createBySuccess();
