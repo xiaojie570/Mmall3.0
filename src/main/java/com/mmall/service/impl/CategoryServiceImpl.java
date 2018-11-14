@@ -98,7 +98,7 @@ public class CategoryServiceImpl implements ICategoryService {
      * @return
      */
     public ServerResponse<List<Integer>> selectCategoryAndChildrenById(Integer categoryId) {
-
+        // 对set进行初始化
         Set<Category> categorySet = Sets.newHashSet();
         // 调用递归方法。通过这个方法将返回的set值放在了categorySet中
         findChildCategory(categorySet,categoryId);
@@ -131,7 +131,7 @@ public class CategoryServiceImpl implements ICategoryService {
         // 在mybatis中返回的List如果是没有值，那么mybatis也不会返回null
         List<Category> categoryList = categoryMapper.selectCategoryChildrenByParentId(categoryId);
         for(Category categoryItem : categoryList) {
-            // 继续调用自己
+            // 继续调用自己，即进入递归
             findChildCategory(categorySet,categoryItem.getId());
         }
         return categorySet;

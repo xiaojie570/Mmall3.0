@@ -82,7 +82,7 @@ public class CategoryManageController {
     }
 
     /**
-     * 获取当前节点的子节点（平级商品），并且不递归
+     * 获取当前节点的子节点（平级商品,不需要递归），并且不递归
      * @param session
      * @param categoryId 如果没有传递该值，就默认为0
      * @return
@@ -94,7 +94,6 @@ public class CategoryManageController {
         if (user == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录，请登录");
         }
-
         if (iUserService.checkAdminRole(user).isSuccess()) {
             // 查询子节点的category信息，并且不递归，保持平级
             return iCategoryService.getChildrenParallelCategroy(categoryId);
@@ -105,7 +104,7 @@ public class CategoryManageController {
 
     /**
      * 查询当前节点的id和递归子节点的id
-     *
+     * 1. 首先判断权限
      * @param session
      * @param categoryId
      * @return
