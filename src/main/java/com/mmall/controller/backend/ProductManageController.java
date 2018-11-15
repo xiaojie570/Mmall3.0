@@ -109,9 +109,20 @@ public class ProductManageController {
     }
 
     // 得到所有的商品，用于分页操作
+
+    /**
+     * 后台商品列表动态分页功能的开发
+     *
+     * @param session
+     * @param pageNum 页面的页码，即第几页。默认第一页
+     * @param pageSize 页面中能存放的记录数，默认一个页面有10条记录
+     * @return
+     */
     @RequestMapping("list.do")
     @ResponseBody
-    public  ServerResponse getList(HttpSession session, @RequestParam(value = "pageNum",defaultValue = "1") int pageNum, @RequestParam(value = "pageSize",defaultValue = "10") int pageSize) {
+    public  ServerResponse getList(HttpSession session,
+                                   @RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
+                                   @RequestParam(value = "pageSize",defaultValue = "10") int pageSize) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if(user == null)
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录管理员");

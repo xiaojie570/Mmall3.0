@@ -139,7 +139,7 @@ public class ProcuctServiceImpl implements IProcuctService {
 
         // imageHost 需要从配置文件中获取，因为这里使用的是图片服务器
         productDetailVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix","http://img.happymmall.com/"));
-        // parentCategoryId
+        // parentCategoryId 获取商品的
         Category category = categoryMapper.selectByPrimaryKey(product.getCategoryId());
         if(category == null)
             productDetailVo.setParentCategoryId(0); // 默认根节点
@@ -148,19 +148,28 @@ public class ProcuctServiceImpl implements IProcuctService {
 
         // createTime
         // updateTime
+        // 设置商品详情的创建时间和更新时间，使用了joda-time来实现时间的转换
         productDetailVo.setCurrentTime(DateTimeUtil.dateToStr(product.getCreateTime()));
         productDetailVo.setUpdateTime(DateTimeUtil.dateToStr(product.getUpdateTime()));
 
+        // 返回VO
         return productDetailVo;
     }
+
+    /**
+     * 后台商品列表动态分页功能开发
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     public  ServerResponse<PageInfo> getProductList(int pageNum,  int pageSize) {
         // startPage -- start
         // 填充自己的sql查询逻辑
         // pageHelper-收尾
-
         PageHelper.startPage(pageNum,pageSize);
+        // 查询商品的list
         List<Product> productList = productMapper.selectList();
-
+        // 将查询到的商品组装起来
         List<ProductListVo> productListVoList = Lists.newArrayList();
         for(Product productItem : productList) {
             ProductListVo productListVo = assembelProductListVo(productItem);
