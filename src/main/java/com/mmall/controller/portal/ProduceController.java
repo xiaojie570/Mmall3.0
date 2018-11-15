@@ -34,6 +34,15 @@ public class ProduceController {
         return iProcuctService.getProductDetail(productId);
     }
 
+    /**
+     * 产品搜索及动态排序List
+     * @param keyword
+     * @param categoryId 分类的id
+     * @param pageNum 页的数量
+     * @param pageSize 页的大小
+     * @param orderBy 默认是空字符串
+     * @return
+     */
     @RequestMapping("list.do")
     @ResponseBody
     public ServerResponse<PageInfo> list(@RequestParam(value="keyword",required = false)String keyword,

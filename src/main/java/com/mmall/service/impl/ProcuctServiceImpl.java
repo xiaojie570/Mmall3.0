@@ -38,14 +38,26 @@ public class ProcuctServiceImpl implements IProcuctService {
 
     @Autowired
     private CategoryMapper categoryMapper;
+
+    /**
+     * 保存或者更新产品
+     * 1. 如果产品不为空再进行下面的操作，否则返回
+     * 2. 需要判断产品的子图是否为空
+     * @param product 保存或者更新的产品
+     * @return
+     */
     public ServerResponse saveOrUpdateProduct(Product product) {
         if(product != null) {
+            // 判断子图是否为空，如果不是空，则将子图的第一个图赋给主图
             if(StringUtils.isNotBlank(product.getSubImages())) {
+                // 将子图进行分割，将第一个子图分割出来
                 String[] subImageArray = product.getSubImages().split(",");
                 if(subImageArray.length > 0) {
+                    // 将子图的第一个图赋给主图
                     product.setMainImage(subImageArray[0]);
                 }
             }
+            // 如果id不是空，就说明是更新产品。如果为空，就说明是新增产品
             if(product.getId() != null) {
                 int rowCount = productMapper.updateByPrimaryKey(product);
                 if(rowCount > 0)
@@ -64,21 +76,35 @@ public class ProcuctServiceImpl implements IProcuctService {
         return ServerResponse.createByErrorMessage("新增或者更新产品参数不正确");
     }
 
+    /**
+     * 产品上下架
+     * @param productId 需要更新的产品的id
+     * @param status 产品的状态
+     * @return
+     */
     public ServerResponse<String> setSaleStatus(Integer productId, Integer status) {
         if(productId == null || status == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
-
+        // 创建一个产品Product的对象
         Product product = new Product();
         product.setId(productId);
         product.setStatus(status);
-
+        //　按照product的主键进行有选择的更新
         int rowCount = productMapper.updateByPrimaryKeySelective(product);
         if(rowCount > 0)
             return ServerResponse.createBySuccessMsg("修改产品销售状态成功");
         return ServerResponse.createByErrorMessage("修改产品销售状态失败");
     }
 
+    /**
+     * 商品详情功能开发
+     * 1. 首先判断商品id是否为空
+     * 2. 从数据库中按照商品id来查询数据库中的商品
+     * 3. 这里使用到了【POJO->VO】
+     * @param productId
+     * @return
+     */
     public ServerResponse<ProductDetailVo> manageProductDetail(Integer productId) {
         if(productId == null)
             return ServerResponse.createByErrorMessage("参数错误");
@@ -87,11 +113,17 @@ public class ProcuctServiceImpl implements IProcuctService {
         if(product == null)
             return ServerResponse.createByErrorMessage("产品已经下架或者删除");
 
+        // POJO->BO（business object）->VO(View Object)
         ProductDetailVo productDetailVo =aaembleProductDetailVo(product);
 
         return ServerResponse.createBySuccess(productDetailVo);
     }
 
+    /**
+     * 构建produceDetailVo
+     * @param product
+     * @return
+     */
     private ProductDetailVo aaembleProductDetailVo(Product product) {
         ProductDetailVo productDetailVo = new ProductDetailVo();
         productDetailVo.setId(product.getId());
@@ -105,7 +137,7 @@ public class ProcuctServiceImpl implements IProcuctService {
         productDetailVo.setStatus(product.getStatus());
         productDetailVo.setStock(product.getStock());
 
-        // imageHost
+        // imageHost 需要从配置文件中获取，因为这里使用的是图片服务器
         productDetailVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix","http://img.happymmall.com/"));
         // parentCategoryId
         Category category = categoryMapper.selectByPrimaryKey(product.getCategoryId());
@@ -190,6 +222,15 @@ public class ProcuctServiceImpl implements IProcuctService {
         return ServerResponse.createBySuccess(productDetailVo);
     }
 
+    /**
+     * 产品搜索及动态排序List
+     * @param keyword
+     * @param categoryId
+     * @param pageNum
+     * @param pageSize
+     * @param orderBy
+     * @return
+     */
     public ServerResponse<PageInfo> getProductByKeyworldCategory(String keyword,Integer categoryId,int pageNum,int pageSize,String orderBy) {
         if(StringUtils.isBlank(keyword) && categoryId == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());

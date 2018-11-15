@@ -40,6 +40,15 @@ public class ProductManageController {
     @Autowired
     private IFileService iFileService;
 
+    /**
+     * 新增商品或者更新商品
+     * 1. 首先判断用户是否登录
+     * 2. 其次判断用户的权限
+     * 3. 调service层
+     * @param session 登录的session信息
+     * @param product 新增或者更新的产品信息
+     * @return
+     */
     @RequestMapping("save.do")
     @ResponseBody
     public ServerResponse productSave(HttpSession session, Product product) {
@@ -55,7 +64,7 @@ public class ProductManageController {
     }
 
     /**
-     * 更新商品的状态
+     * 更新商品的状态，即产品上下架
      * @param session
      * @param productId
      * @param status
@@ -76,6 +85,14 @@ public class ProductManageController {
         }
     }
 
+
+    /**
+     * 7-3 获取商品详情功能的开发
+     *
+     * @param session 从session中获取用户的信息
+     * @param productId 获得需要的商品的id
+     * @return
+     */
     @RequestMapping("detail.do")
     @ResponseBody
     public  ServerResponse getDetail(HttpSession session,Integer productId) {

@@ -19,7 +19,7 @@ public class ProductDetailVo {
     private String currentTime;
     private String updateTime;
 
-    private String imageHost;
+    private String imageHost;  // 图片服务器的地址
     private Integer parentCategoryId;
 
     public Integer getId() {
