@@ -165,7 +165,14 @@ public class ProductManageController {
         }
     }
 
-    // 上传图片,文件
+    /**
+     * 上传图片,文件
+     *
+     * @param session
+     * @param file
+     * @param request
+     * @return
+     */
     @RequestMapping("upload.do")
     @ResponseBody
     public ServerResponse upload(HttpSession session,
@@ -194,11 +201,22 @@ public class ProductManageController {
     }
 
 
-    // 上传富文本
-
+    /**
+     * 上传富文本
+     *
+     * @param session
+     * @param file 文件的名字
+     * @param request
+     * @param response
+     * @return
+     */
     @RequestMapping("richtext_img_upload.do")
     @ResponseBody
-    public Map richtextImgUpload(HttpSession session, @RequestParam(value = "upload_file",required = false) MultipartFile file, HttpServletRequest request, HttpServletResponse response){
+    public Map richtextImgUpload(HttpSession session,
+                                 @RequestParam(value = "upload_file",required = false) MultipartFile file,
+                                 HttpServletRequest request,
+                                 HttpServletResponse response){
+        // 声明一个用于返回值的承载对象Map
         Map resultMap = Maps.newHashMap();
         User user = (User)session.getAttribute(Const.CURRENT_USER);
         if(user == null){
@@ -220,10 +238,11 @@ public class ProductManageController {
                 resultMap.put("msg","上传失败");
                 return resultMap;
             }
-            String url = PropertiesUtil.getProperty("ftp.server.http.prefix")+targetFileName;
+            String url = PropertiesUtil.getProperty("ftp.server.http.prefix") + targetFileName;
             resultMap.put("success",true);
             resultMap.put("msg","上传成功");
             resultMap.put("file_path",url);
+            // 用富文本上传的时候需要修改HTTP的header
             response.addHeader("Access-Control-Allow-Headers","X-File-Name");
             return resultMap;
         }else{

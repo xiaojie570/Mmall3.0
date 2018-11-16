@@ -5,7 +5,7 @@
 
 springmvc上传文件
 <form name="form1" action="/Mmall/manage/product/upload.do" method="post" enctype="multipart/form-data">
-    <input type = "file" name="upload_file">
+    <input type = "file" name="upload_file"> <!-- 这个name一定要与MultipartFile的对象名字一样 -->
     <input type="submit" value="springmvc上传文件">
 </form>
 
