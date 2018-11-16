@@ -168,7 +168,9 @@ public class ProductManageController {
     // 上传图片,文件
     @RequestMapping("upload.do")
     @ResponseBody
-    public ServerResponse upload(HttpSession session,@RequestParam(value = "upload_file",required = false) MultipartFile file, HttpServletRequest request) {
+    public ServerResponse upload(HttpSession session,
+                                 @RequestParam(value = "upload_file",required = false) MultipartFile file,
+                                 HttpServletRequest request) {
         // 权限判断
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         //if(user == null)
