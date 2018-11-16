@@ -230,7 +230,7 @@ public class ProductManageController {
 //                "msg": "error message", # optional
 //            "file_path": "[real file path]"
 //        }
-        if(iUserService.checkAdminRole(user).isSuccess()){
+        if(!iUserService.checkAdminRole(user).isSuccess()){
             String path = request.getSession().getServletContext().getRealPath("upload");
             String targetFileName = iFileService.upload(file,path);
             if(StringUtils.isBlank(targetFileName)){
