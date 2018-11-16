@@ -194,15 +194,23 @@ public class ProcuctServiceImpl implements IProcuctService {
         return productListVo;
     }
 
+    /**
+     * 后台商品搜索功能
+     *
+     * @param productName
+     * @param productId
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     public ServerResponse<PageInfo> searchProduct(String productName,Integer productId,int pageNum,int pageSize) {
         PageHelper.startPage(pageNum,pageSize);
         if(StringUtils.isNotBlank(productName)) {
-            System.out.println(productName+"...........................");
             productName = new StringBuilder().append("%").append(productName).append("%").toString();
 
         }
+        // 从数据库中按照商品名字或者按照商品的ID来查询商品信息
         List<Product>  productList = productMapper.selectByNameAndProductId(productName,productId);
-
 
         List<ProductListVo> productListVoList = Lists.newArrayList();
         for(Product productItem : productList) {
