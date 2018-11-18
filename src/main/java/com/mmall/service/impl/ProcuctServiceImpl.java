@@ -223,6 +223,14 @@ public class ProcuctServiceImpl implements IProcuctService {
         return ServerResponse.createBySuccess(pageResult);
     }
 
+    /**
+     * 获取前台商品详情
+     * 1. 首先判断用户传入的id是否为空
+     * 2. 判断商品是否是在线销售状态
+     * 3. 组装商品
+     * @param productId
+     * @return
+     */
     public ServerResponse<ProductDetailVo> getProductDetail(Integer productId) {
         if(productId == null)
             return ServerResponse.createByErrorMessage("参数错误");
@@ -241,6 +249,7 @@ public class ProcuctServiceImpl implements IProcuctService {
 
     /**
      * 产品搜索及动态排序List
+     * 1. 首先判断
      * @param keyword
      * @param categoryId
      * @param pageNum
@@ -266,26 +275,33 @@ public class ProcuctServiceImpl implements IProcuctService {
             }
             categoryIdList = iCategoryService.selectCategoryAndChildrenById(category.getId()).getData();
         }
-            if(StringUtils.isNotBlank(keyword)) {
-                keyword = new StringBuilder().append("%").append(keyword).append("%").toString();
-            }
-            PageHelper.startPage(pageNum,pageSize);
-            // 排序处理
-            if(StringUtils.isNotBlank(orderBy)) {
-                if(Const.ProductListOrderBy.PRICE_ASC_DESC.contains(orderBy)) {
-                    String[] orderByArray = orderBy.split("_");
-                    PageHelper.orderBy(orderByArray[0] + " " + orderByArray[1]);
-                }
-            }
-            List<Product> productList = productMapper.selectByNameAndCategoryIds(StringUtils.isBlank(keyword) ? null:keyword,categoryIdList.size() == 0 ? null:categoryIdList);
-            List<ProductListVo> productListVoList = Lists.newArrayList();
-            for(Product product : productList) {
-                ProductListVo productListVo = assembelProductListVo(product);
-                productListVoList.add(productListVo);
-            }
-            PageInfo pageInfo = new PageInfo(productList);
-            pageInfo.setList(productListVoList);
-            return ServerResponse.createBySuccess(pageInfo);
+
+        if(StringUtils.isNotBlank(keyword)) {
+            //拼接关键字
+           keyword = new StringBuilder().append("%").append(keyword).append("%").toString();
+        }
+        // 开始分页
+        PageHelper.startPage(pageNum,pageSize);
+        // 排序处理
+        if(StringUtils.isNotBlank(orderBy)) {
+           if(Const.ProductListOrderBy.PRICE_ASC_DESC.contains(orderBy)) {
+               // 对它进行分割。
+               String[] orderByArray = orderBy.split("_");
+               // orderBy(price desc):表示将price按照降序排序
+               PageHelper.orderBy(orderByArray[0] + " " + orderByArray[1]);
+           }
+        }
+
+        // 搜索product，可以按照keyword或者分类id进行搜索
+        List<Product> productList = productMapper.selectByNameAndCategoryIds(StringUtils.isBlank(keyword) ? null:keyword,categoryIdList.size() == 0 ? null:categoryIdList);
+        List<ProductListVo> productListVoList = Lists.newArrayList();
+        for(Product product : productList) {
+            ProductListVo productListVo = assembelProductListVo(product);
+            productListVoList.add(productListVo);
+        }
+        PageInfo pageInfo = new PageInfo(productList);
+        pageInfo.setList(productListVoList);
+        return ServerResponse.createBySuccess(pageInfo);
     }
 
 

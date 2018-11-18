@@ -27,7 +27,11 @@ public class ProduceController {
     private IProcuctService iProcuctService;
 
 
-
+    /**
+     * 获取商品详情
+     * @param productId 传入商品的id
+     * @return
+     */
     @RequestMapping("detail.do")
     @ResponseBody
     public ServerResponse<ProductDetailVo> detail(Integer productId) {
@@ -36,10 +40,10 @@ public class ProduceController {
 
     /**
      * 产品搜索及动态排序List
-     * @param keyword
-     * @param categoryId 分类的id
-     * @param pageNum 页的数量
-     * @param pageSize 页的大小
+     * @param keyword 关键字，关键字非必须的，因为用户可以不按照关键字搜索，所以设置它的require是false
+     * @param categoryId 分类的id，这个也不是必须传入的
+     * @param pageNum 页的数量  默认是1
+     * @param pageSize 页的大小  默认是10
      * @param orderBy 默认是空字符串
      * @return
      */
