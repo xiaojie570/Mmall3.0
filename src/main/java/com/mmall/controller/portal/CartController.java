@@ -37,6 +37,14 @@ public class CartController {
 
     }
 
+    /**
+     * 向购物车中添加一个信息
+     *
+     * @param session
+     * @param count
+     * @param productId
+     * @return
+     */
     @RequestMapping("add.do")
     @ResponseBody
     public ServerResponse add(HttpSession session,Integer count,Integer productId) {
@@ -49,6 +57,14 @@ public class CartController {
     }
 
     //更新购物车，改变购物车中的产品数量
+
+    /**
+     * 更新、删除购物车商品功能开发
+     * @param session
+     * @param count
+     * @param productId
+     * @return
+     */
     @RequestMapping("update.do")
     @ResponseBody
     public ServerResponse update(HttpSession session,Integer count,Integer productId) {
@@ -60,7 +76,12 @@ public class CartController {
     }
 
 
-    //删除购物车中的产品
+    /**
+     * 删除购物车中的产品
+     * @param session
+     * @param productIds
+     * @return
+     */
     @RequestMapping("delete_product.do")
     @ResponseBody
     public ServerResponse deleteProduct(HttpSession session,String productIds) {

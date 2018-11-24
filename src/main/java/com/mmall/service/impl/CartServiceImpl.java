@@ -51,18 +51,29 @@ public class CartServiceImpl implements ICartService{
 
         return ServerResponse.createBySuccess(cartMapper.selectCartProductCount(userId));
     }
+
+    /**
+     * 向购物车中添加商品
+     * 1. 首先查看用户之前购物车中是否有该商品
+     *      1.1 如果这个商品不在购物车中，需要新增一个这个产品的记录
+     *      1.2 如果这个商品已经在购物车中，就将购物车中商品数量增加
+     * 2. 注意，向购物车中添加完商品后需要更新和显示现在的商品信息
+     * @param userId
+     * @param productId
+     * @param count
+     * @return
+     */
     public ServerResponse add(Integer userId,Integer productId,Integer count) {
         if(productId == null || count == null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
-
 
         Cart cart = cartMapper.selectCartByUserIdProductId(userId,productId);
         if(cart == null){
             //这个产品不在这个购物车里,需要新增一个这个产品的记录
             Cart cartItem = new Cart();
             cartItem.setQuantity(count);
-            cartItem.setChecked(Const.Cart.CHECKED);
+            cartItem.setChecked(Const.Cart.CHECKED); // 购物车商品是选中状态
             cartItem.setProductId(productId);
             cartItem.setUserId(userId);
             cartMapper.insert(cartItem);
@@ -76,10 +87,18 @@ public class CartServiceImpl implements ICartService{
         return this.list(userId);
     }
 
+    /**
+     * 更新购物车商品功能开发
+     * @param userId
+     * @param productId
+     * @param count
+     * @return
+     */
     public ServerResponse<CartVo> update(Integer userId,Integer productId, Integer count) {
         if(productId == null || count == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
+        // 从数据库中查询购物车的信息
         Cart cart = cartMapper.selectCartByUserIdProductId(userId,productId);
         if(cart != null) {
             cart.setQuantity(count);
@@ -89,6 +108,9 @@ public class CartServiceImpl implements ICartService{
         return ServerResponse.createBySuccess(cartVo);
     }
 
+    /**
+     * 删除购物车中的产品
+     */
     public ServerResponse deleteProduct(Integer userId, String productIds){
         List<String> productList = Splitter.on(",").splitToList(productIds);
         if(CollectionUtils.isEmpty(productList)) {
@@ -99,21 +121,27 @@ public class CartServiceImpl implements ICartService{
         return ServerResponse.createBySuccess(cartVo);
     }
 
-
+    /**
+     * 获取购物车信息
+     *
+     * @param userId
+     * @return
+     */
     private CartVo getCartVoLimit(Integer userId) {
         CartVo cartVo = new CartVo();
+        // 获取用户的购物车集合
         List<Cart> cartList = cartMapper.selectCartByUserId(userId);
         List<CartProductVo> cartProductVoList = Lists.newArrayList();
-
+        // 用来存储购物车中商品的总价。注意这里面有一个问题就是：数字在计算的时候如何避免丢失精度。
         BigDecimal cartTotalPrice = new BigDecimal("0");
-
+        // 如果购物车中有商品，进行如下操作
         if(CollectionUtils.isNotEmpty(cartList)){
             for(Cart cartItem : cartList){
                 CartProductVo cartProductVo = new CartProductVo();
                 cartProductVo.setId(cartItem.getId());
                 cartProductVo.setUserId(userId);
                 cartProductVo.setProductId(cartItem.getProductId());
-
+                // 去数据库中查询产品的信息
                 Product product = productMapper.selectByPrimaryKey(cartItem.getProductId());
                 if(product != null){
                     cartProductVo.setProductMainImage(product.getMainImage());
@@ -131,15 +159,16 @@ public class CartServiceImpl implements ICartService{
                     }else{
                         buyLimitCount = product.getStock();
                         cartProductVo.setLimitQuantity(Const.Cart.LIMIT_NUM_FAIL);
-                        //购物车中更新有效库存
+                        //购物车中更新有效库存，只更新set的字段
                         Cart cartForQuantity = new Cart();
                         cartForQuantity.setId(cartItem.getId());
                         cartForQuantity.setQuantity(buyLimitCount);
                         cartMapper.updateByPrimaryKeySelective(cartForQuantity);
                     }
                     cartProductVo.setQuantity(buyLimitCount);
-                    //计算总价
+                    //计算总价，同一个商品的总价 = 商品个数 * 商品单价
                     cartProductVo.setProductTotalPrice(BigDecimalUtil.mul(product.getPrice().doubleValue(),cartProductVo.getQuantity()));
+                    // 设置商品的勾选信息
                     cartProductVo.setProductChecked(cartItem.getChecked());
                 }
 
@@ -152,6 +181,7 @@ public class CartServiceImpl implements ICartService{
         }
         cartVo.setCartTotalPrice(cartTotalPrice);
         cartVo.setCartProductVoList(cartProductVoList);
+        // 全选按钮：看是否所有商品被选择
         cartVo.setAllChecked(this.getAllCheckedStatus(userId));
         cartVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix"));
 

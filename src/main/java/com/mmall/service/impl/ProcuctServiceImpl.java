@@ -250,17 +250,18 @@ public class ProcuctServiceImpl implements IProcuctService {
     /**
      * 产品搜索及动态排序List
      * 1. 首先判断
-     * @param keyword
-     * @param categoryId
+     * @param keyword 搜索的关键字
+     * @param categoryId 按照分类id进行搜搜
      * @param pageNum
      * @param pageSize
-     * @param orderBy
-     * @return
+     * @param orderBy  排序的顺序
+     * @return 返回的是分页的结果
      */
     public ServerResponse<PageInfo> getProductByKeyworldCategory(String keyword,Integer categoryId,int pageNum,int pageSize,String orderBy) {
         if(StringUtils.isBlank(keyword) && categoryId == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
+
         // 如果写了一个大的分类，就要把所有的该分类下的商品选出来，使用递归算法
         List<Integer> categoryIdList = new ArrayList<>();
 
@@ -269,31 +270,33 @@ public class ProcuctServiceImpl implements IProcuctService {
             if (categoryId == null && StringUtils.isBlank(keyword)) {
                 //没有该分类，并且还没有关键字，这个时候返回一个空的结果集，不报错
                 PageHelper.startPage(pageNum, pageSize);
-                List<ProductDetailVo> productDetailVoList = Lists.newArrayList();
-                PageInfo pageInfo = new PageInfo(productDetailVoList);
+                List<ProductListVo> productListVo = Lists.newArrayList();
+                PageInfo pageInfo = new PageInfo(productListVo);
                 return ServerResponse.createBySuccess(pageInfo);
             }
             categoryIdList = iCategoryService.selectCategoryAndChildrenById(category.getId()).getData();
         }
 
         if(StringUtils.isNotBlank(keyword)) {
-            //拼接关键字
+            //拼接关键字,方便mysql进行查找
            keyword = new StringBuilder().append("%").append(keyword).append("%").toString();
         }
         // 开始分页
         PageHelper.startPage(pageNum,pageSize);
-        // 排序处理
+        // 排序处理：动态排序
         if(StringUtils.isNotBlank(orderBy)) {
+            // price_desc  price_asc
            if(Const.ProductListOrderBy.PRICE_ASC_DESC.contains(orderBy)) {
                // 对它进行分割。
                String[] orderByArray = orderBy.split("_");
-               // orderBy(price desc):表示将price按照降序排序
+               // PageHelper的语法：orderBy(price desc):表示将price按照降序排序
                PageHelper.orderBy(orderByArray[0] + " " + orderByArray[1]);
            }
         }
 
         // 搜索product，可以按照keyword或者分类id进行搜索
         List<Product> productList = productMapper.selectByNameAndCategoryIds(StringUtils.isBlank(keyword) ? null:keyword,categoryIdList.size() == 0 ? null:categoryIdList);
+        // 通过productList来构造ProducceListVo
         List<ProductListVo> productListVoList = Lists.newArrayList();
         for(Product product : productList) {
             ProductListVo productListVo = assembelProductListVo(product);
