@@ -40,13 +40,26 @@ public class CartServiceImpl implements ICartService{
         return ServerResponse.createBySuccess(cartVo);
     }
 
+    /**
+     * 全选或者全反选，单选，单反选，都可以复用该方法。
+     * @param userId
+     * @param productId
+     * @param checked
+     * @return
+     */
     public ServerResponse<CartVo> selectOrUnSelect(Integer userId,Integer productId,Integer checked) {
         cartMapper.checkedOrUnCheckedAllProduct(userId,productId,checked);
         return list(userId);
     }
 
+    /**
+     * 查询当前用户的购物车里面的产品数量，如果一个产品有10个，那么数量就是10
+     * @param userId
+     * @return
+     */
     public ServerResponse<Integer> getCartProductCount(Integer userId) {
         if(userId == null)
+            // 没有登录就返回数量为：0
             return ServerResponse.createBySuccess(0);
 
         return ServerResponse.createBySuccess(cartMapper.selectCartProductCount(userId));

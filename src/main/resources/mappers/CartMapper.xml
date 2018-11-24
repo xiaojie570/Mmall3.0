@@ -147,6 +147,7 @@
      </if>
   </delete>
 
+  <!-- 全选和单选的sql写在一起了 -->
   <update id="checkedOrUnCheckedAllProduct" parameterType="map">
     UPDATE mmall_cart
     set checked = #{checked},
@@ -157,6 +158,7 @@
     </if>
   </update>
 
+  <!-- 查询购物车中商品的数量。当userid不存在，查询出来的结果是null。而null是不能够传递给int类型的，所以使用了内置函数：IFNULL -->
   <select id="selectCartProductCount" resultType="int" parameterType="int">
     SELECT IFNULL(sum(quantity),0) as count from mmall_cart
     where user_id = #{userId}
