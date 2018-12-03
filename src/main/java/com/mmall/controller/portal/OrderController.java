@@ -24,6 +24,9 @@ import javax.servlet.http.HttpSession;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * 沙箱当面付文档：https://docs.open.alipay.com/194/105170/
+ */
 @Controller
 @RequestMapping("/order/")
 public class OrderController {
