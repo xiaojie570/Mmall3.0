@@ -114,7 +114,7 @@ public class OrderController {
      * 支付订单
      * @param session
      * @param orderNo　订单号
-     * @param request
+     * @param request 获取上下文，将生成的二维码上传到图片服务器上，然后再将图片地址传递给前端，前端根据地址显示二维码
      * @return
      */
     @RequestMapping(value = "pay.do",method = RequestMethod.GET)
@@ -126,26 +126,36 @@ public class OrderController {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
 
-        //　将生成的二维码传到ｆｔｐ服务器上，然后返回给前端这个二维码的图片地址
+        //　将生成的二维码传到【ftp】服务器上，然后返回给前端这个二维码的图片地址
         String path = request.getSession().getServletContext().getRealPath("upload");
 
         return iOrderService.pay(orderNo,user.getId(),path);
     }
 
+    /**
+     * 回调方法，支付宝的回掉会放在 request 中，我们需要从 request 中自己取出来
+     * @param request
+     * @return 返回Object 会根据阿里pay要求的进行返回
+     */
     @RequestMapping("alipay_callback.do")
     @ResponseBody
     public Object alipayCallback(HttpServletRequest request){
         Map<String,String> params = Maps.newHashMap();
-
+        // 使用迭代器去取出来需要的内容
         Map requestParams = request.getParameterMap();
         for(Iterator iter = requestParams.keySet().iterator();iter.hasNext();){
+            // 首先取出 name
             String name = (String)iter.next();
+            // 然后取出 name 对应的value
             String[] values = (String[]) requestParams.get(name);
-            String valueStr = "";
-            for(int i = 0 ; i <values.length;i++){
 
-                valueStr = (i == values.length -1)?valueStr + values[i]:valueStr + values[i]+",";
+            String valueStr = "";
+            // 遍历整个 values 数组
+            for(int i = 0 ; i <values.length;i++){
+                // 将数组 values 拼接到一个字符串中
+                valueStr = (i == values.length -1)?(valueStr + values[i]) : (valueStr + values[i] + ",");
             }
+            // 从request中拿到了信息
             params.put(name,valueStr);
         }
         logger.info("支付宝回调,sign:{},trade_status:{},参数:{}",params.get("sign"),params.get("trade_status"),params.toString());
@@ -154,6 +164,7 @@ public class OrderController {
 
         params.remove("sign_type");
         try {
+            // Configs：支付宝源码提供了该工具类
             boolean alipayRSACheckedV2 = AlipaySignature.rsaCheckV2(params, Configs.getAlipayPublicKey(),"utf-8",Configs.getSignType());
 
             if(!alipayRSACheckedV2){
@@ -163,10 +174,10 @@ public class OrderController {
             logger.error("支付宝验证回调异常",e);
         }
 
+
+
         //todo 验证各种数据
-
-
-        //
+        // 从各个方面来验证支付宝传来的数据的正确性
         ServerResponse serverResponse = iOrderService.aliCallback(params);
         if(serverResponse.isSuccess()){
             return Const.AlipayCallback.RESPONSE_SUCCESS;
@@ -175,6 +186,12 @@ public class OrderController {
     }
 
 
+    /**
+     * 查询订单支付状态功能
+     * @param session
+     * @param orderNo
+     * @return
+     */
     @RequestMapping("query_order_pay_status.do")
     @ResponseBody
     public ServerResponse<Boolean> queryOrderPayStatus(HttpSession session, Long orderNo){
@@ -182,8 +199,9 @@ public class OrderController {
         if(user ==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-
+        // 查询订单状态
         ServerResponse serverResponse = iOrderService.queryOrderPayStatus(user.getId(),orderNo);
+        // 如果查询订单状态成功，则返回 true，否则返回 false
         if(serverResponse.isSuccess()){
             return ServerResponse.createBySuccess(true);
         }

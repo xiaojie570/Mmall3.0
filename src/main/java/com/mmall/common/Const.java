@@ -50,6 +50,7 @@ public class Const {
         }
     }
 
+    // 对订单状态声明一个枚举
     public enum OrderStatusEnum {
         CANCLED(0,"已取消"),
         NO_PAY(10,"未支付"),
@@ -85,14 +86,17 @@ public class Const {
 
     }
 
+    // 声明一个常量类
     public interface AlipayCallback {
-        String TRADE_STATUS_WAIT_BUYER_PAY = "WAIT_BUYER_PAY";
-        String TRADE_STATUS_TRADE_SUCCESS = "TRADE_SUCCESS";
+        String TRADE_STATUS_WAIT_BUYER_PAY = "WAIT_BUYER_PAY"; // 等待买家付款
+        String TRADE_STATUS_TRADE_SUCCESS = "TRADE_SUCCESS"; // 交易成功
 
-        String RESPONSE_SUCCESS = "success";
-        String RESPONSE_FAILED = "failed";
+        // 两个返回值
+        String RESPONSE_SUCCESS = "success";  // 交易成功
+        String RESPONSE_FAILED = "failed";  //
     }
 
+    // 声明一个支付信息的常量：1 代表是支付宝
     public enum PayPlatformEnum{
         ALIPAY(1,"支付宝");
 

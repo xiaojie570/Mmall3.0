@@ -435,7 +435,7 @@ public class OrderServiceImpl implements IOrderService {
 
 
     /**
-     *
+     * 支付
      * @param orderNo 订单号
      * @param userId 用户的id
      * @param path 生成二维码传到哪里的路径
@@ -445,14 +445,17 @@ public class OrderServiceImpl implements IOrderService {
         // 使用map来承载这个对象
         Map<String ,String> resultMap = Maps.newHashMap();
 
-        // 判断这个用户是否you该订单
+        // 判断这个用户是否有该订单
         Order order = orderMapper.selectByUserIdAndOrderNo(userId,orderNo);
         if(order == null){
-            return ServerResponse.createByErrorMessage("用户没有该订单");
+            return ServerResponse.createByErrorMessage("该用户没有该订单");
         }
         resultMap.put("orderNo",String.valueOf(order.getOrderNo()));
 
 
+        /**
+         * 生成支付宝订单需要使用的各种参数
+         */
         // (必填) 商户网站订单系统中唯一订单号，64个字符以内，只能包含字母、数字、下划线，
         // 需保证商户系统端不能重复，建议通过数据库sequence生成，
         // 订单号
@@ -549,6 +552,7 @@ public class OrderServiceImpl implements IOrderService {
                 // 将二维码存储在哪里，这里存储在qrPath中
                 ZxingUtils.getQRCodeImge(response.getQrCode(), 256, qrPath);
 
+                // 目标文件的path, 目标文件的文件名：qrFileName
                 File targetFile = new File(path,qrFileName);
 
                 try {
@@ -558,6 +562,7 @@ public class OrderServiceImpl implements IOrderService {
                 }
 
                 logger.info("qrPath:" + qrPath);
+
                 String qrUrl = PropertiesUtil.getProperty("ftp.server.http.prefix")+targetFile.getName();
                 resultMap.put("qrUrl",qrUrl);
                 return ServerResponse.createBySuccess(resultMap);
@@ -588,34 +593,58 @@ public class OrderServiceImpl implements IOrderService {
         }
     }
 
+    /**
+     * 验证支付宝回调的正确性
+     *
+     * @param params
+     * @return
+     */
     public ServerResponse aliCallback(Map<String,String> params) {
+       // 将 params 中的各个数据拿出来
         Long orderNo = Long.parseLong(params.get("out_trade_no"));
         String tradeNo = params.get("trade_no");
         String tradeStatus = params.get("trade_status");
+        // 根据订单号来查询看数据库中该订单是否存在
         Order order = orderMapper.selectByOrderNo(orderNo);
+        // 对数据库返回的order进行判断是否为空
         if(order == null)
             return ServerResponse.createByErrorMessage("非商城的订单，回调忽略");
+        // 对订单状态进行判断
         if(order.getStatus() >= Const.OrderStatusEnum.PAID.getCode()) {
             return ServerResponse.createBySuccess("支付宝重复调用");
         }
         if(Const.AlipayCallback.TRADE_STATUS_TRADE_SUCCESS.equals(tradeStatus)) {
+            // 订单的时间，可以从支付宝的官方文档中获取到支付订单的时间
             order.setPaymentTime(DateTimeUtil.strToDate(params.get("gmt_payment")));
+            // 将订单状态置成已经付款
             order.setStatus(Const.OrderStatusEnum.PAID.getCode());
+            // 更新订单状态
             orderMapper.updateByPrimaryKeySelective(order);
         }
 
+        // 组装我们的payInfo对象
         PayInfo payInfo = new PayInfo();
         payInfo.setUserId(order.getUserId());
         payInfo.setOrderNo(order.getOrderNo());
+        // 支付的平台
         payInfo.setPayPlatform(Const.PayPlatformEnum.ALIPAY.getCode());
+        // 支付宝的交易号
         payInfo.setPlatformNumber(tradeNo);
+        // 支付宝的交易状态
         payInfo.setPlatformStatus(tradeStatus);
 
         payInfoMapper.insert(payInfo);
         return ServerResponse.createBySuccess();
     }
 
+    /**
+     * 查询订单状态
+     * @param userId  用户的 id
+     * @param orderNo 订单号
+     * @return
+     */
     public ServerResponse queryOrderPayStatus(Integer userId,Long orderNo) {
+        // 首先要查询这个订单是否存在
         Order order = orderMapper.selectByUserIdAndOrderNo(userId,orderNo);
         if(order == null)
             return ServerResponse.createByErrorMessage("用户没有该订单");
