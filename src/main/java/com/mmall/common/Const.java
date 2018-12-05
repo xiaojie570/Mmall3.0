@@ -116,6 +116,9 @@ public class Const {
         }
     }
 
+    /**
+     * 使用枚举的方式
+     */
     public enum PaymentTypeEnum {
         ONLINE_PAY(1,"在线支付");
 

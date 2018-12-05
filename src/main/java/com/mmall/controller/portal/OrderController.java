@@ -36,6 +36,13 @@ public class OrderController {
     @Autowired
     private IOrderService iOrderService;
 
+    /**
+     * 创建订单
+     *
+     * @param session
+     * @param shippingId 创建订单时候的地址，即发货地址的 id，需要将这个地址存在订单中
+     * @return
+     */
     @RequestMapping(value = "create.do",method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse<Boolean> create(HttpSession session, Integer shippingId){
@@ -48,8 +55,14 @@ public class OrderController {
         return iOrderService.createOrder(user.getId(),shippingId);
     }
 
-    // 在未付款的时候取消订单
 
+    /**
+     *  在未付款的时候取消订单
+     *
+     * @param session
+     * @param orderNo
+     * @return
+     */
     @RequestMapping("cancle.do")
     @ResponseBody
     public ServerResponse<String> cancle(HttpSession session, Long orderNo){
@@ -61,7 +74,12 @@ public class OrderController {
         return iOrderService.cancel(user.getId(),orderNo);
     }
 
-    //
+    /**
+     * 获取购物车中已经选中的商品的商品详情
+     *
+     * @param session
+     * @return
+     */
     @RequestMapping("get_order_cart_product.do")
     @ResponseBody
     public ServerResponse<String> getOrderCartProduct(HttpSession session){
@@ -69,7 +87,6 @@ public class OrderController {
         if(user == null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-
 
         return iOrderService.getOrderCartProduct(user.getId());
     }
