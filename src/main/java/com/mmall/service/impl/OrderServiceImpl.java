@@ -446,11 +446,20 @@ public class OrderServiceImpl implements IOrderService {
         return ServerResponse.createBySuccess(orderProductVo);
     }
 
-
+    /**
+     * 获取订单详情
+     *
+     * @param userId
+     * @param orderNo
+     * @return
+     */
     public ServerResponse<OrderVo> getOrderDetail(Integer userId,Long orderNo){
+        // 从数据库中获取 用户 id 和 订单 id 的订单
         Order order = orderMapper.selectByUserIdAndOrderNo(userId,orderNo);
         if(order != null){
+            // 当订单不为空的时候，我们需要获取订单的orderItem的集合
             List<OrderItem> orderItemList = orderItemMapper.getByOrderNoUserId(orderNo,userId);
+            // 组装 OrderVo
             OrderVo orderVo = assembleOrderVo(order,orderItemList);
             return ServerResponse.createBySuccess(orderVo);
         }
@@ -458,9 +467,18 @@ public class OrderServiceImpl implements IOrderService {
     }
 
 
+    /**
+     * 获取订单信息
+     * @param userId
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     public ServerResponse<PageInfo> getOrderList(Integer userId,int pageNum,int pageSize){
         PageHelper.startPage(pageNum,pageSize);
+        // 从数据库中按照用户的 id 获取用户的订单信息
         List<Order> orderList = orderMapper.selectByUserId(userId);
+        // 将orderList 组装成 orderVoList
         List<OrderVo> orderVoList = assembleOrderVoList(orderList,userId);
         PageInfo pageResult = new PageInfo(orderList);
         pageResult.setList(orderVoList);
@@ -470,14 +488,19 @@ public class OrderServiceImpl implements IOrderService {
 
     private List<OrderVo> assembleOrderVoList(List<Order> orderList,Integer userId){
         List<OrderVo> orderVoList = Lists.newArrayList();
+        // 遍历我们的订单
         for(Order order : orderList){
+            // 订单的明细，需要加载订单的明细，然后放在OrderVo中
             List<OrderItem>  orderItemList = Lists.newArrayList();
+            // 这里需要分角色进行查询，管路员和用户
+            // 如果是管理员的话，这个userId传递一个null。
             if(userId == null){
                 //todo 管理员查询的时候 不需要传userId
                 orderItemList = orderItemMapper.getByOrderNo(order.getOrderNo());
             }else{
                 orderItemList = orderItemMapper.getByOrderNoUserId(order.getOrderNo(),userId);
             }
+            // 组装 orderVo
             OrderVo orderVo = assembleOrderVo(order,orderItemList);
             orderVoList.add(orderVo);
         }
@@ -487,9 +510,17 @@ public class OrderServiceImpl implements IOrderService {
 
     //backend
 
+    /**
+     * 获取订单的信息，需要分页
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     public ServerResponse<PageInfo> manageList(int pageNum,int pageSize){
         PageHelper.startPage(pageNum,pageSize);
+        // 从数据库中获取所有人的订单信息
         List<Order> orderList = orderMapper.selectAllOrder();
+        // 这里与前台的组装方法是一样的，按照角色进行区分
         List<OrderVo> orderVoList = this.assembleOrderVoList(orderList,null);
         PageInfo pageResult = new PageInfo(orderList);
         pageResult.setList(orderVoList);

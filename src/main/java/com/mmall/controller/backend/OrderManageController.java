@@ -29,7 +29,13 @@ public class OrderManageController {
     @Autowired
     private IOrderService iOrderService;
 
-
+    /**
+     * 获取订单的信息，需要分页
+     * @param session
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     @RequestMapping("list.do")
     @ResponseBody
     public ServerResponse<PageInfo> orderList(HttpSession session,

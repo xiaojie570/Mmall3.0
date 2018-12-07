@@ -91,7 +91,13 @@ public class OrderController {
         return iOrderService.getOrderCartProduct(user.getId());
     }
 
-    // 获取订单列表和订单详情
+    /**
+     * 前台个人中心中
+     * 获取订单列表和订单详情
+     * @param session
+     * @param orderNo 查看哪一个订单的详情
+     * @return
+     */
     @RequestMapping("detail.do")
     @ResponseBody
     public ServerResponse detail(HttpSession session,Long orderNo){
@@ -104,6 +110,13 @@ public class OrderController {
         return iOrderService.getOrderDetail(user.getId(),orderNo);
     }
 
+    /**
+     * 获取订单信息，这个方法需要分页
+     * @param session
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     @RequestMapping("list.do")
     @ResponseBody
     public ServerResponse list(HttpSession session,
