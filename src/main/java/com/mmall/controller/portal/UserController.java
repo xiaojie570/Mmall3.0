@@ -55,8 +55,14 @@ public class UserController {
 
     @RequestMapping(value="logout.do",method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse<String> login(HttpSession session) {
-        session.removeAttribute(Const.CURRENT_USER);
+    public ServerResponse<String> login(HttpSession session,
+                                        HttpServletRequest httpServletRequest,
+                                        HttpServletResponse httpServletResponse) {
+        // session.removeAttribute(Const.CURRENT_USER);
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        RedisPoolUtill.del(loginToken);
+        CookieUtil.delLoginToken(httpServletRequest,httpServletResponse);
+
         return ServerResponse.createBySuccess();
     }
 
