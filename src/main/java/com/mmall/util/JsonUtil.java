@@ -1,9 +1,9 @@
 package com.mmall.util;
 
-import com.alipay.api.internal.util.StringUtils;
 import com.google.common.collect.Lists;
 import com.mmall.pojo.User;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;

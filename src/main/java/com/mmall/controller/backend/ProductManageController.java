@@ -9,7 +9,10 @@ import com.mmall.pojo.User;
 import com.mmall.service.IFileService;
 import com.mmall.service.IProcuctService;
 import com.mmall.service.IUserService;
+import com.mmall.util.CookieUtil;
+import com.mmall.util.JsonUtil;
 import com.mmall.util.PropertiesUtil;
+import com.mmall.util.RedisPoolUtill;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,14 +48,20 @@ public class ProductManageController {
      * 1. 首先判断用户是否登录
      * 2. 其次判断用户的权限
      * 3. 调service层
-     * @param session 登录的session信息
      * @param product 新增或者更新的产品信息
      * @return
      */
     @RequestMapping("save.do")
     @ResponseBody
-    public ServerResponse productSave(HttpSession session, Product product) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+    public ServerResponse productSave(HttpServletRequest httpServletRequest, Product product) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if(StringUtils.isEmpty(loginToken)) {
+            return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户信息");
+        }
+        String userJson = RedisPoolUtill.get(loginToken);
+        User user = JsonUtil.String2Obj(userJson,User.class);
+
+
         if (user == null)
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录，请登录管理员");
         if (iUserService.checkAdminRole(user).isSuccess()) {
@@ -65,15 +74,20 @@ public class ProductManageController {
 
     /**
      * 更新商品的状态，即产品上下架
-     * @param session
      * @param productId
      * @param status
      * @return
      */
     @RequestMapping("set_sale_status.do")
     @ResponseBody
-    public  ServerResponse setSaleStatus(HttpSession session,Integer productId, Integer status) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+    public  ServerResponse setSaleStatus(HttpServletRequest httpServletRequest,Integer productId, Integer status) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if(StringUtils.isEmpty(loginToken)) {
+            return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户信息");
+        }
+        String userJson = RedisPoolUtill.get(loginToken);
+        User user = JsonUtil.String2Obj(userJson,User.class);
+
         if(user == null)
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录管理员");
 
@@ -89,14 +103,20 @@ public class ProductManageController {
     /**
      * 7-3 获取商品详情功能的开发
      *
-     * @param session 从session中获取用户的信息
      * @param productId 获得需要的商品的id
      * @return
      */
     @RequestMapping("detail.do")
     @ResponseBody
-    public  ServerResponse getDetail(HttpSession session,Integer productId) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+    public  ServerResponse getDetail(HttpServletRequest httpServletRequest,Integer productId) {
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if(StringUtils.isEmpty(loginToken)) {
+            return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户信息");
+        }
+        String userJson = RedisPoolUtill.get(loginToken);
+        User user = JsonUtil.String2Obj(userJson,User.class);
+
+
         if(user == null)
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录管理员");
 
@@ -113,17 +133,23 @@ public class ProductManageController {
     /**
      * 后台商品列表动态分页功能的开发
      *
-     * @param session
      * @param pageNum 页面的页码，即第几页。默认第一页
      * @param pageSize 页面中能存放的记录数，默认一个页面有10条记录
      * @return
      */
     @RequestMapping("list.do")
     @ResponseBody
-    public  ServerResponse getList(HttpSession session,
+    public  ServerResponse getList(HttpServletRequest httpServletRequest,
                                    @RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
                                    @RequestParam(value = "pageSize",defaultValue = "10") int pageSize) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if(StringUtils.isEmpty(loginToken)) {
+            return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户信息");
+        }
+        String userJson = RedisPoolUtill.get(loginToken);
+        User user = JsonUtil.String2Obj(userJson,User.class);
+
+
         if(user == null)
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录管理员");
 
@@ -139,7 +165,6 @@ public class ProductManageController {
 
     /**
      * 按照商品的名字或者id来查找商品
-     * @param session
      * @param productName
      * @param productId
      * @param pageNum
@@ -148,12 +173,18 @@ public class ProductManageController {
      */
     @RequestMapping("search.do")
     @ResponseBody
-    public  ServerResponse productSearch(HttpSession session,
+    public  ServerResponse productSearch(HttpServletRequest httpServletRequest,
                                          String productName,
                                          Integer productId,
                                          @RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
                                          @RequestParam(value = "pageSize",defaultValue = "10") int pageSize) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if(StringUtils.isEmpty(loginToken)) {
+            return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户信息");
+        }
+        String userJson = RedisPoolUtill.get(loginToken);
+        User user = JsonUtil.String2Obj(userJson,User.class);
+
         if(user == null)
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录管理员");
 
@@ -175,11 +206,16 @@ public class ProductManageController {
      */
     @RequestMapping("upload.do")
     @ResponseBody
-    public ServerResponse upload(HttpSession session,
+    public ServerResponse upload(HttpServletRequest httpServletRequest,
                                  @RequestParam(value = "upload_file",required = false) MultipartFile file,
                                  HttpServletRequest request) {
         // 权限判断
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        if(StringUtils.isEmpty(loginToken)) {
+            return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户信息");
+        }
+        String userJson = RedisPoolUtill.get(loginToken);
+        User user = JsonUtil.String2Obj(userJson,User.class);
         //if(user == null)
         //    return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录管理员");
 
@@ -204,7 +240,6 @@ public class ProductManageController {
     /**
      * 上传富文本
      *
-     * @param session
      * @param file 文件的名字
      * @param request
      * @param response
@@ -212,13 +247,20 @@ public class ProductManageController {
      */
     @RequestMapping("richtext_img_upload.do")
     @ResponseBody
-    public Map richtextImgUpload(HttpSession session,
-                                 @RequestParam(value = "upload_file",required = false) MultipartFile file,
+    public Map richtextImgUpload(@RequestParam(value = "upload_file",required = false) MultipartFile file,
                                  HttpServletRequest request,
                                  HttpServletResponse response){
         // 声明一个用于返回值的承载对象Map
         Map resultMap = Maps.newHashMap();
-        User user = (User)session.getAttribute(Const.CURRENT_USER);
+        String loginToken = CookieUtil.readLoginToken(request);
+        if(StringUtils.isEmpty(loginToken)) {
+            resultMap.put("success",false);
+            resultMap.put("msg","请登录管理员");
+            return resultMap;
+        }
+        String userJson = RedisPoolUtill.get(loginToken);
+        User user = JsonUtil.String2Obj(userJson,User.class);
+
         if(user == null){
             resultMap.put("success",false);
             resultMap.put("msg","请登录管理员");
