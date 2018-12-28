@@ -55,7 +55,7 @@ public class UserController {
 
     @RequestMapping(value="logout.do",method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse<String> login(HttpSession session,
+    public ServerResponse<String> logout(HttpSession session,
                                         HttpServletRequest httpServletRequest,
                                         HttpServletResponse httpServletResponse) {
         // session.removeAttribute(Const.CURRENT_USER);
