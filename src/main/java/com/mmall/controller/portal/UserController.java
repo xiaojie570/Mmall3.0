@@ -126,7 +126,6 @@ public class UserController {
 
     /**
      * 因为是在登录状态，所以可以从session中获取用户信息
-     * @param session
      * @param passwordOld
      * @param passwordNew
      * @return
