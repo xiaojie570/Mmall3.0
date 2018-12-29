@@ -1,11 +1,14 @@
 package com.mmall.util;
 
 import com.mmall.common.RedisPool;
+import com.mmall.common.RedisShardedPool;
+import com.mmall.common.RedisShardedPool;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.ShardedJedis;
 
 @Slf4j
-public class RedisPoolUtill {
+public class RedisPoolUtillBak {
 
     public static String set(String key, String value) {
         Jedis jedis = null;
@@ -85,6 +88,5 @@ public class RedisPoolUtill {
         RedisPool.returnResource(jedis);
         return result;
     }
-
     
 }

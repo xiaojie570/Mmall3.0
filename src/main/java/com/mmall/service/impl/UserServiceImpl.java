@@ -7,12 +7,11 @@ import com.mmall.dao.UserMapper;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
 import com.mmall.util.MD5Util;
-import com.mmall.util.RedisPoolUtill;
+import com.mmall.util.RedisShardedPoolUtill;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import java.util.UUID;
 
 /**
@@ -134,7 +133,7 @@ public class UserServiceImpl implements IUserService {
             // 声明一个token，这个token使用的是UUID来实现的
             String forgetToken = UUID.randomUUID().toString();
             // 将忘记密码的 token 写入到 redis 中
-            RedisPoolUtill.setEx(TokenCache.TOKEN_PREFIX + username,60 * 60 * 12, forgetToken);
+            RedisShardedPoolUtill.setEx(TokenCache.TOKEN_PREFIX + username,60 * 60 * 12, forgetToken);
 
             return ServerResponse.createBySuccess(forgetToken);
         }
@@ -165,7 +164,7 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createByErrorMessage("用户不存在");
         }
         // 从redis中获取token。
-        String token = RedisPoolUtill.get(TokenCache.TOKEN_PREFIX + username);
+        String token = RedisShardedPoolUtill.get(TokenCache.TOKEN_PREFIX + username);
         if(StringUtils.isBlank(token)) {
             return ServerResponse.createByErrorMessage("token无效或者过期");
         }
