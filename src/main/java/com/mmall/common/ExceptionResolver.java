@@ -1,6 +1,7 @@
 package com.mmall.common;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
@@ -14,6 +15,7 @@ import javax.xml.ws.handler.Handler;
  */
 
 @Slf4j
+@Component
 public class ExceptionResolver implements HandlerExceptionResolver{
     /**
      * 1. 首先使用log 打印出异常日志
