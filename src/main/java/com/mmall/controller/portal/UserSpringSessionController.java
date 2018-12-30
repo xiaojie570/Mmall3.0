@@ -43,6 +43,11 @@ public class UserSpringSessionController {
                                       HttpSession session,
                                       HttpServletResponse httpServletResponse,
                                       HttpServletRequest httpServletRequest) {
+
+        // 测试全局异常
+        int i = 0;
+        int j = 666 / i;
+
         ServerResponse<User> response = iUserService.login(username,password);
         // 如果返回值是正确的，则将用户信息存储在redis中
         if(response.isSuccess()) {
@@ -60,10 +65,10 @@ public class UserSpringSessionController {
     public ServerResponse<String> logout(HttpSession session,
                                         HttpServletRequest httpServletRequest,
                                         HttpServletResponse httpServletResponse) {
-        // session.removeAttribute(Const.CURRENT_USER);
-        String loginToken = CookieUtil.readLoginToken(httpServletRequest);
+        session.removeAttribute(Const.CURRENT_USER);
+        /*String loginToken = CookieUtil.readLoginToken(httpServletRequest);
         RedisShardedPoolUtill.del(loginToken);
-        CookieUtil.delLoginToken(httpServletRequest,httpServletResponse);
+        CookieUtil.delLoginToken(httpServletRequest,httpServletResponse);*/
 
         return ServerResponse.createBySuccess();
     }

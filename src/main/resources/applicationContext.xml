@@ -10,7 +10,10 @@
      http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <!--用来扫描包-->
-    <context:component-scan base-package="com.mmall" annotation-config="true"/>
+    <context:component-scan base-package="com.mmall" annotation-config="true">
+        <!-- 扫描的时候会忽略controller注解，将controller注解由springmvc来扫描 -->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"></context:exclude-filter>
+    </context:component-scan>
 
     <!--<context:annotation-config/>-->
     <aop:aspectj-autoproxy/>
