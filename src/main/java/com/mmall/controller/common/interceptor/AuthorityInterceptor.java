@@ -17,6 +17,7 @@ public class AuthorityInterceptor implements HandlerInterceptor{
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler) throws Exception {
         log.info("preHandle");
+        System.out.println("==================================================================================================================pre==============================================");
         return true;
     }
 
@@ -24,6 +25,8 @@ public class AuthorityInterceptor implements HandlerInterceptor{
     @Override
     public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, ModelAndView modelAndView) throws Exception {
         log.info("postHandle");
+        System.out.println("==================================================================================================================post==============================================");
+
     }
 
     // 在所有处理完之后调用的，
