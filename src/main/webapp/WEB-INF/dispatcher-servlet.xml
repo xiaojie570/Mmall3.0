@@ -34,6 +34,19 @@
         </mvc:message-converters>
     </mvc:annotation-driven>
 
+    <!-- SpringMVC 拦截器-->
+    <mvc:interceptors>
+        <!-- 定义在这里的，所有的.do都会拦截 -->
+        <mvc:interceptor>
+            <!-- manage/a.do          /manage/* -->
+            <!-- manage/b.do          /manage/* -->
+            <!-- manage/product/save.do          /manage/** -->
+            <!-- manage/order/detail.do          /manage/** -->
+            <mvc:mapping path="manage/**"/>
+            <bean class="com.mmall.controller.common.interceptor.AuthorityInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
 
 
     <!-- 文件上传 使用这个配置和  MultipartFile -->
