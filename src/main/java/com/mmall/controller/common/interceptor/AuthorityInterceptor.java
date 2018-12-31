@@ -18,6 +18,10 @@ public class AuthorityInterceptor implements HandlerInterceptor{
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler) throws Exception {
         log.info("preHandle");
         System.out.println("==================================================================================================================pre==============================================");
+        // 请求中 Controller 中的方法名字
+        // 解析 HandlerMehtod
+        // 解析参数，具体的参数 key 以及 value 是什么， 我们打印日志
+
         return true;
     }
 

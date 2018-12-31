@@ -42,7 +42,7 @@
             <!-- manage/b.do          /manage/* -->
             <!-- manage/product/save.do          /manage/** -->
             <!-- manage/order/detail.do          /manage/** -->
-            <mvc:mapping path="manage/**"/>
+            <mvc:mapping path="/manage/**"/>
             <bean class="com.mmall.controller.common.interceptor.AuthorityInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>
