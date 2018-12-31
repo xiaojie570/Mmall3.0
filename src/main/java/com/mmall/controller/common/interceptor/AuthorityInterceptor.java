@@ -56,6 +56,15 @@ public class AuthorityInterceptor implements HandlerInterceptor{
         }
 
 
+        // ============================================================================================================
+        // 解决循环依赖问题
+        if(StringUtils.equals(className,"UserManageController") && StringUtils.equals(methodName,"login")) {
+            log.info("权限拦截器拦截到请求，className:{},methodName:{}",className,methodName);
+            // 如果是拦截到登录请求，不打印参数，如果参数里面有密码，全部会打印到日志中，防止日志泄漏
+            return true;
+        }
+        // ============================================================================================================
+
         User user = null;
 
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
