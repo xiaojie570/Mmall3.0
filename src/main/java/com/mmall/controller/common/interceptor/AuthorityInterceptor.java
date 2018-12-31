@@ -59,7 +59,7 @@ public class AuthorityInterceptor implements HandlerInterceptor{
         User user = null;
 
         String loginToken = CookieUtil.readLoginToken(httpServletRequest);
-        if(StringUtils.isEmpty(loginToken)) {
+        if(StringUtils.isNotEmpty(loginToken)) {
             String userJson = RedisShardedPoolUtill.get(loginToken);
             user = JsonUtil.String2Obj(userJson,User.class);
         }
