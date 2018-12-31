@@ -15,9 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 public class AuthorityInterceptor implements HandlerInterceptor{
     // 在Controller之前
     @Override
-    public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
+    public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler) throws Exception {
         log.info("preHandle");
-        return false;
+        return true;
     }
 
     // 在Controller之后
