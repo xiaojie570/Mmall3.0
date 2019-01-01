@@ -1,5 +1,6 @@
 package com.mmall.controller.common.interceptor;
 
+import com.google.common.collect.Maps;
 import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
@@ -55,7 +56,6 @@ public class AuthorityInterceptor implements HandlerInterceptor{
             requestParamBuffer.append(mapKey).append("=").append(mapValue);
         }
 
-
         // ============================================================================================================
         // 解决循环依赖问题
         if(StringUtils.equals(className,"UserManageController") && StringUtils.equals(methodName,"login")) {
@@ -83,19 +83,30 @@ public class AuthorityInterceptor implements HandlerInterceptor{
             PrintWriter printWriter = httpServletResponse.getWriter();
 
             if(user == null) {
-                printWriter.print(JsonUtil.Obj2String(ServerResponse.createByErrorMessage("拦截器，用户还未登录")));
+                if(StringUtils.equals(className,"ProductManageController") && StringUtils.equals(methodName,"richtextImgUpload")) {
+                    Map resultMap = Maps.newHashMap();
+                    resultMap.put("success",false);
+                    resultMap.put("msg","请登录管理员");
+                    printWriter.print(JsonUtil.Obj2String(resultMap));
+                } else {
+                    printWriter.print(JsonUtil.Obj2String(ServerResponse.createByErrorMessage("拦截器，用户还未登录")));
+                }
             } else {
-                printWriter.print(JsonUtil.Obj2String(ServerResponse.createByErrorMessage("拦截器，用户不是管理员权限")));
+                if(StringUtils.equals(className,"ProductManageController") && StringUtils.equals(methodName,"richtextImgUpload")) {
+                    Map resultMap = Maps.newHashMap();
+                    resultMap.put("success",false);
+                    resultMap.put("msg","无权限操作");
+                    printWriter.print(JsonUtil.Obj2String(resultMap));
+                } else {
+                    printWriter.print(JsonUtil.Obj2String(ServerResponse.createByErrorMessage("拦截器，用户不是管理员权限")));
+                }
             }
 
             printWriter.flush();
             printWriter.close(); // 这里要关闭
 
             return false;
-
         }
-
-
         return true;
     }
 

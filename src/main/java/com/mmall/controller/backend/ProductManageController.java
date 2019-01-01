@@ -196,7 +196,6 @@ public class ProductManageController {
     /**
      * 上传图片,文件
      *
-     * @param session
      * @param file
      * @param request
      * @return
@@ -218,9 +217,7 @@ public class ProductManageController {
 
         if(!iUserService.checkAdminRole(user).isSuccess()) {
             String path = request.getSession().getServletContext().getRealPath("upload");
-            System.out.println(path + "=================================================");
             String targetFileName = iFileService.upload(file,path);
-            System.out.println(targetFileName + "111111111111111111111111111111111111111111111111111111111111111111111");
             String url = PropertiesUtil.getProperty("ftp.server.http.prefix") + targetFileName;
             Map fileMap = Maps.newHashMap();
             // uri放targetFileName
