@@ -63,6 +63,7 @@ public class ProduceController {
     }
 
 
+    // http://new.nginx.tomcat.com/product/%E6%89%8B%E6%9C%BA/100012/1/10/price_asc
     @RequestMapping(value = "/{keyword}/{categoryId}/{pageNum}/{pageSize}/{orderBy}", method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse<PageInfo> listRESTful(@PathVariable(value="keyword")String keyword,
@@ -78,5 +79,72 @@ public class ProduceController {
             orderBy = "price_asc";
         }
         return iProcuctService.getProductByKeyworldCategory(keyword,categoryId,pageNum,pageSize,orderBy);
+    }
+
+
+    @RequestMapping(value = "/{categoryId}/{pageNum}/{pageSize}/{orderBy}", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<PageInfo> listRESTfulBadcase(@PathVariable(value = "categoryId") Integer categoryId,
+                                                @PathVariable(value = "pageNum") Integer pageNum,
+                                                @PathVariable(value = "pageSize") Integer pageSize,
+                                                @PathVariable(value = "orderBy") String orderBy) {
+        if(pageNum == null)
+            pageNum = 1;
+        if(pageSize == null)
+            pageSize = 20;
+        if(StringUtils.isBlank(orderBy)) {
+            orderBy = "price_asc";
+        }
+        return iProcuctService.getProductByKeyworldCategory("",categoryId,pageNum,pageSize,orderBy);
+    }
+
+    @RequestMapping(value = "/{keyword}/{pageNum}/{pageSize}/{orderBy}", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<PageInfo> listRESTfulBadcase(@PathVariable(value="keyword")String keyword,
+                                                       @PathVariable(value = "pageNum") Integer pageNum,
+                                                       @PathVariable(value = "pageSize") Integer pageSize,
+                                                       @PathVariable(value = "orderBy") String orderBy) {
+        if(pageNum == null)
+            pageNum = 1;
+        if(pageSize == null)
+            pageSize = 20;
+        if(StringUtils.isBlank(orderBy)) {
+            orderBy = "price_asc";
+        }
+        return iProcuctService.getProductByKeyworldCategory(keyword,null,pageNum,pageSize,orderBy);
+    }
+
+    // 这样服务器就知道你请求的是哪一个controller了
+    @RequestMapping(value = "/categoryId/{categoryId}/{pageNum}/{pageSize}/{orderBy}", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<PageInfo> listRESTful(@PathVariable(value = "categoryId") Integer categoryId,
+                                                       @PathVariable(value = "pageNum") Integer pageNum,
+                                                       @PathVariable(value = "pageSize") Integer pageSize,
+                                                       @PathVariable(value = "orderBy") String orderBy) {
+        if(pageNum == null)
+            pageNum = 1;
+        if(pageSize == null)
+            pageSize = 20;
+        if(StringUtils.isBlank(orderBy)) {
+            orderBy = "price_asc";
+        }
+        return iProcuctService.getProductByKeyworldCategory("",categoryId,pageNum,pageSize,orderBy);
+    }
+
+
+    @RequestMapping(value = "/keyword/{keyword}/{pageNum}/{pageSize}/{orderBy}", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<PageInfo> listRESTful(@PathVariable(value="keyword")String keyword,
+                                                       @PathVariable(value = "pageNum") Integer pageNum,
+                                                       @PathVariable(value = "pageSize") Integer pageSize,
+                                                       @PathVariable(value = "orderBy") String orderBy) {
+        if(pageNum == null)
+            pageNum = 1;
+        if(pageSize == null)
+            pageSize = 20;
+        if(StringUtils.isBlank(orderBy)) {
+            orderBy = "price_asc";
+        }
+        return iProcuctService.getProductByKeyworldCategory(keyword,null,pageNum,pageSize,orderBy);
     }
 }
