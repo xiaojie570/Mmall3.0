@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
+
 /**
  * Created by lenovo on 2019/1/14.
  */
@@ -18,6 +20,13 @@ public class CloseOrderTask {
 
     @Autowired
     private IOrderService iOrderService;
+
+    // 使用tomcat的shutdown关闭的时候，它会先调用 PreDestroy方法，也可以防止死锁问题
+    //　但是这种方式防止死锁还是存在死锁问题，因为如果直接ｋｉｌｌ掉tomcat进程的时候，并不会执行这个方法
+    @PreDestroy
+    public void delLock() {
+        RedisShardedPoolUtill.del(Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK);
+    }
 
     @Scheduled(cron = "0 */1 * * * ?") //每个1分钟的整数倍来执行
     public void closeOrderTaskV1() {
@@ -44,6 +53,7 @@ public class CloseOrderTask {
     }
 
     private void closeOrder(String lockName) {
+        // 在这一版本中，会出现死锁问题
         RedisShardedPoolUtill.expire(lockName,50); // 有效期50秒，防止死锁
         log.info("获取{}, ThreadName:{}", Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK);
         int hour = Integer.parseInt(PropertiesUtil.getProperty("close.order.task.tim","2"));
