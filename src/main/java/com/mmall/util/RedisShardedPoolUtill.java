@@ -55,6 +55,22 @@ public class RedisShardedPoolUtill {
         return result;
     }
 
+    public static String getset(String key,String value) {
+        ShardedJedis jedis = null;
+        String result = null;
+        try {
+            jedis = RedisShardedPool.getResource();
+            result = jedis.getSet(key,value);
+        } catch (Exception e) {
+            log.error("redis getset, key:{}",key,e);
+            RedisShardedPool.returnBrokenResource(jedis);
+            return  result;
+        }
+
+        RedisShardedPool.returnBrokenResource(jedis);
+        return result;
+    }
+
     // 时间exTime单位是秒
     public static String setEx(String key, int exTime, String value) {
         ShardedJedis jedis = null;
