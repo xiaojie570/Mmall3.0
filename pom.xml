@@ -265,6 +265,13 @@
       <version>1.2.0.RELEASE</version>
     </dependency>
 
+    <!-- redisson 框架集成2-->
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-avro</artifactId>
+      <version>2.9.0</version>
+    </dependency>
+
   </dependencies>
 
 
