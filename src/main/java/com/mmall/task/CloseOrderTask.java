@@ -1,16 +1,19 @@
 package com.mmall.task;
 
 import com.mmall.common.Const;
+import com.mmall.common.RedissonManager;
 import com.mmall.service.IOrderService;
 import com.mmall.util.PropertiesUtil;
 import com.mmall.util.RedisShardedPoolUtill;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by lenovo on 2019/1/14.
@@ -22,6 +25,9 @@ public class CloseOrderTask {
     @Autowired
     private IOrderService iOrderService;
 
+
+    @Autowired
+    private RedissonManager redissonManager;
     // 使用tomcat的shutdown关闭的时候，它会先调用 PreDestroy方法，也可以防止死锁问题
     //　但是这种方式防止死锁还是存在死锁问题，因为如果直接ｋｉｌｌ掉tomcat进程的时候，并不会执行这个方法
     @PreDestroy
@@ -37,7 +43,7 @@ public class CloseOrderTask {
         log.info("关闭订单定时任务结束");
     }
 
-    @Scheduled(cron = "0 */1 * * * ?") //每个1分钟的整数倍来执行
+   /* @Scheduled(cron = "0 *//*1 * * * ?") //每个1分钟的整数倍来执行
     public void closeOrderTaskV2() {
         log.info("关闭订单定时任务启动");
         long  lockTimeout =Long.parseLong(PropertiesUtil.getProperty("lock.timeout","5000"));
@@ -51,9 +57,9 @@ public class CloseOrderTask {
             log.info("没有获取分布式锁：{}",Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK);
         }
         log.info("关闭订单定时任务结束");
-    }
+    }*/
 
-    @Scheduled(cron = "0 */1 * * * ?") //每个1分钟的整数倍来执行
+   /* @Scheduled(cron = "0 *//*1 * * * ?") //每个1分钟的整数倍来执行
     public void closeOrderTaskV3() {
         log.info("关闭订单定时任务启动");
         long  lockTimeout =Long.parseLong(PropertiesUtil.getProperty("lock.timeout","5000"));
@@ -83,7 +89,36 @@ public class CloseOrderTask {
             }
         }
         log.info("关闭订单定时任务结束");
+    }*/
+
+
+    @Scheduled(cron = "0 */1 * * * ?") //每个1分钟的整数倍来执行
+    public void closeOrderTaskV4() {
+        RLock rLock = redissonManager.getRedisson().getLock(Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK);
+        boolean getLock = false;
+
+        try {
+            if(getLock = rLock.tryLock(2,5, TimeUnit.SECONDS)) {
+                log.info("Redisson 获取到分布式锁：{},ThreadName:{}",Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK,System.currentTimeMillis());
+                int hour = Integer.parseInt(PropertiesUtil.getProperty("close.order.task.tim","2"));
+                iOrderService.closeOrder(hour);
+            } else {
+                log.info("Redisson 没有获取到分布式锁：{},ThreadName:{}",Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK,System.currentTimeMillis());
+
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            log.error("Redisson 分布式锁获取异常",e);
+        } finally {
+            if(!getLock) {
+                return;
+            }
+            rLock.unlock();
+            log.info("Redisson 分布式锁释放锁");
+        }
+
     }
+
 
     private void closeOrder(String lockName) {
         // 在这一版本中，会出现死锁问题
