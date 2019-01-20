@@ -28,6 +28,7 @@ public class CloseOrderTask {
 
     @Autowired
     private RedissonManager redissonManager;
+
     // 使用tomcat的shutdown关闭的时候，它会先调用 PreDestroy方法，也可以防止死锁问题
     //　但是这种方式防止死锁还是存在死锁问题，因为如果直接ｋｉｌｌ掉tomcat进程的时候，并不会执行这个方法
     @PreDestroy
@@ -94,17 +95,20 @@ public class CloseOrderTask {
 
     @Scheduled(cron = "0 */1 * * * ?") //每个1分钟的整数倍来执行
     public void closeOrderTaskV4() {
+        // 先获取Redisson的锁
         RLock rLock = redissonManager.getRedisson().getLock(Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK);
+        // 是否获取锁成功
         boolean getLock = false;
 
         try {
+            // 尝试获取锁（等待锁的时间，锁的自动释放锁的时间，时间的单位）
             if(getLock = rLock.tryLock(2,5, TimeUnit.SECONDS)) {
-                log.info("Redisson 获取到分布式锁：{},ThreadName:{}",Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK,System.currentTimeMillis());
+                log.info("Redisson 获取到分布式锁：{},ThreadName:{}",Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK,Thread.currentThread().getName());
+                // 获取小时
                 int hour = Integer.parseInt(PropertiesUtil.getProperty("close.order.task.tim","2"));
                 iOrderService.closeOrder(hour);
             } else {
-                log.info("Redisson 没有获取到分布式锁：{},ThreadName:{}",Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK,System.currentTimeMillis());
-
+                log.info("Redisson 没有获取到分布式锁：{},ThreadName:{}",Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK,Thread.currentThread().getName());
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
