@@ -61,6 +61,7 @@ public class CloseOrderTask {
     }*/
 
    /* @Scheduled(cron = "0 *//*1 * * * ?") //每个1分钟的整数倍来执行
+   // 原生实现的分布式锁。很好的方法要理解。
     public void closeOrderTaskV3() {
         log.info("关闭订单定时任务启动");
         long  lockTimeout =Long.parseLong(PropertiesUtil.getProperty("lock.timeout","5000"));
@@ -102,7 +103,9 @@ public class CloseOrderTask {
 
         try {
             // 尝试获取锁（等待锁的时间，锁的自动释放锁的时间，时间的单位）
-            if(getLock = rLock.tryLock(2,5, TimeUnit.SECONDS)) {
+            // 这里需要将等待锁的时间(wait-time)设置为：0，否则会有一个小 bug：这个bug就是两个tomcat同时会获取到分布式锁
+            // 同时设置为 0 就不需要预估处理关闭订单的时候所花费的时间。
+            if(getLock = rLock.tryLock(0,50, TimeUnit.SECONDS)) {
                 log.info("Redisson 获取到分布式锁：{},ThreadName:{}",Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK,Thread.currentThread().getName());
                 // 获取小时
                 int hour = Integer.parseInt(PropertiesUtil.getProperty("close.order.task.tim","2"));
