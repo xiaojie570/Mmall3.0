@@ -35,13 +35,13 @@ public class CloseOrderTask {
         RedisShardedPoolUtill.del(Const.REDIS_LOCK.CLOSE_ORDER_TASK_LOCK);
     }
 
-    @Scheduled(cron = "0 */1 * * * ?") //每个1分钟的整数倍来执行
+   /* @Scheduled(cron = "0 *//*1 * * * ?") //每个1分钟的整数倍来执行
     public void closeOrderTaskV1() {
         log.info("关闭订单定时任务启动");
         int hour = Integer.parseInt(PropertiesUtil.getProperty("close.order.task.time","2"));
         iOrderService.closeOrder(hour);
         log.info("关闭订单定时任务结束");
-    }
+    }*/
 
    /* @Scheduled(cron = "0 *//*1 * * * ?") //每个1分钟的整数倍来执行
     public void closeOrderTaskV2() {
